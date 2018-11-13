@@ -21,12 +21,16 @@
 # 2. Zwei Spalten erstellen, die wir mit ALter füllen wollen (W/L)
 # 3. Aus dem Dataset mit Playerdata Geburstdatum nehmen und mit Spieldatum zu einem Alter
 #    errechnen (Rechnen mit Dates siehe Script aus Workshop)
-# 4. 
+# 
 # 
 # Titel gewonnen:
-# Spiele gewonnnen
-# 
-
-
-
-
+# Matche gewonnnen total
+# Matche verloren total
+# Price Money gewonnen
+# Titel auf Untergrund (Hardcourt, Sand, Rasen)
+# Matchsiege auf Untergrund (Hardcourt, Sand, Rasen)
+# Spiel findet in Heimatland statt? -> Binary 
+# When turned pro?
+# Right hand/left hand
+# Single/ double handed backhand
+#9 Percentages of 1. Serve won, 2. Serve won, Break points won etc...
