@@ -61,6 +61,7 @@ tournaments1877_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential 
 <<<<<<< HEAD
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Cutting rankings1973_2017 -----------------------------------------------
 typeof(rankings1973_2017$week_year)
 rankings1991_2017 <- rankings1973_2017 %>%
@@ -80,6 +81,8 @@ min(tournaments1991_2017$tourney_year)
 # complete?
 nrow(is.na(tournaments1991_2017$tourney_year))
 =======
+=======
+>>>>>>> 54e30177e8d463d130cd3b64aa0bb009e9f00996
 # Stats check ------
 colnames(matchStats1991_2016) == colnames(matchStats2017)              # All true
 sapply(matchStats1991_2016, typeof) == sapply(matchStats2017, typeof)  # All true
@@ -87,6 +90,9 @@ sapply(matchStats1991_2016, typeof) == sapply(matchStats2017, typeof)  # All tru
 matchStats1991_2017 = rbind(matchStats1991_2016, matchStats2017)
 rm(matchStats1991_2016, matchStats2017)
 
+<<<<<<< HEAD
+>>>>>>> 54e30177e8d463d130cd3b64aa0bb009e9f00996
+=======
 >>>>>>> 54e30177e8d463d130cd3b64aa0bb009e9f00996
 
 =======
