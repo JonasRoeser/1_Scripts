@@ -40,6 +40,7 @@ library("dplyr")
 
 rm(list = ls())
 
+# Reading all of our data of the selected time period
 matchScores1991_2016 = read.csv("../2_Data/Downloaded Potential Data/match_scores_1991-2016_unindexed_csv.csv")
 matchScores2017 = read.csv("../2_Data/Downloaded Potential Data/match_scores_2017_unindexed_csv.csv")
 matchStats1991_2016 = read.csv("../2_Data/Downloaded Potential Data/match_stats_1991-2016_unindexed_csv.csv")
@@ -48,6 +49,7 @@ playerOverviews = read.csv("../2_Data/Downloaded Potential Data/player_overviews
 rankings1973_2017 = read.csv("../2_Data/Downloaded Potential Data/rankings_1973-2017_csv.csv")
 tournaments1877_2017 = read.csv("../2_Data/Downloaded Potential Data/tournaments_1877-2017_unindexed_csv.csv")
 
+# Because of OneDrive 
 matchScores1991_2016 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_scores_1991-2016_unindexed_csv.csv")
 matchScores2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_scores_2017_unindexed_csv.csv")
 matchStats1991_2016 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_stats_1991-2016_unindexed_csv.csv")
@@ -56,6 +58,7 @@ playerOverviews = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/
 rankings1973_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/rankings_1973-2017_csv.csv")
 tournaments1877_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/tournaments_1877-2017_unindexed_csv.csv")
 
+<<<<<<< HEAD
 
 # Stats check ------
 colnames(matchStats1991_2016) == colnames(matchStats2017)              # All true
@@ -65,3 +68,19 @@ matchStats1991_2017 = rbind(matchStats1991_2016, matchStats2017)
 rm(matchStats1991_2016, matchStats2017)
 
 
+=======
+# Checking if colnames of matchScores match
+colnames(matchScores1991_2016) == colnames(matchScores2017)
+
+# Checking if classes of matchScores columns match
+sapply(matchScores1991_2016, class) == sapply(matchScores2017, class)
+
+# Checking if types of matchScores columns match
+sapply(matchScores1991_2016, typeof) == sapply(matchScores2017, typeof)
+
+# Combining matchScores
+matchScores = bind_rows(matchScores1991_2016, matchScores2017)
+colnames(matchScores)
+sapply(matchScores, typeof)
+rm(matchScores1991_2016, matchScores2017)
+>>>>>>> ded7ab47b36189ad3759b7639f92f81d57b35436
