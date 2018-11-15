@@ -49,3 +49,13 @@ matchStats2017 = read.csv("../2_Data/Downloaded Potential Data/match_stats_2017_
 playerOverviews = read.csv("../2_Data/Downloaded Potential Data/player_overviews_unindexed_csv.csv")
 rankings1973_2017 = read.csv("../2_Data/Downloaded Potential Data/rankings_1973-2017_csv.csv")
 tournaments1877_2017 = read.csv("../2_Data/Downloaded Potential Data/tournaments_1877-2017_unindexed_csv.csv")
+
+matchScores1877_1967 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_scores_1877-1967_unindexed_csv.csv")
+matchScores1968_1990 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_scores_1968-1990_unindexed_csv.csv")
+matchScores1991_2016 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_scores_1991-2016_unindexed_csv.csv")
+matchScores2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_scores_2017_unindexed_csv.csv")
+matchStats1991_2016 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_stats_1991-2016_unindexed_csv.csv")
+matchStats2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/match_stats_2017_unindexed_csv.csv")
+playerOverviews = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/player_overviews_unindexed_csv.csv")
+rankings1973_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/rankings_1973-2017_csv.csv")
+tournaments1877_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/tournaments_1877-2017_unindexed_csv.csv")
