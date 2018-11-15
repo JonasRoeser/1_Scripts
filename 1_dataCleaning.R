@@ -58,29 +58,29 @@ playerOverviews = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/
 rankings1973_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/rankings_1973-2017_csv.csv")
 tournaments1877_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/tournaments_1877-2017_unindexed_csv.csv")
 
-<<<<<<< HEAD
+# Stats Check --------------------------------------------------------
 
-# Stats check ------
+# Checking if colnames of matchStats match
 colnames(matchStats1991_2016) == colnames(matchStats2017)              # All true
+# Checking if classes of matchStats columns match
+sapply(matchStats1991_2016, class) == sapply(matchStats2017, class)    # All true
+# Checking if types of matchStats columns match
 sapply(matchStats1991_2016, typeof) == sapply(matchStats2017, typeof)  # All true
 
+# Combining matchStats
 matchStats1991_2017 = rbind(matchStats1991_2016, matchStats2017)
-rm(matchStats1991_2016, matchStats2017)
 
+# Scores Check -------------------------------------------------------
 
-=======
 # Checking if colnames of matchScores match
 colnames(matchScores1991_2016) == colnames(matchScores2017)
-
 # Checking if classes of matchScores columns match
 sapply(matchScores1991_2016, class) == sapply(matchScores2017, class)
-
 # Checking if types of matchScores columns match
 sapply(matchScores1991_2016, typeof) == sapply(matchScores2017, typeof)
 
 # Combining matchScores
-matchScores = bind_rows(matchScores1991_2016, matchScores2017)
-colnames(matchScores)
-sapply(matchScores, typeof)
-rm(matchScores1991_2016, matchScores2017)
->>>>>>> ded7ab47b36189ad3759b7639f92f81d57b35436
+matchScores1991_2017 = rbind(matchScores1991_2016, matchScores2017)
+
+# Removing other datasets
+rm(matchStats1991_2016, matchStats2017, matchScores1991_2016, matchScores2017)
