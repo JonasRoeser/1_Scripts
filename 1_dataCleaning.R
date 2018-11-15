@@ -56,3 +56,12 @@ playerOverviews = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/
 rankings1973_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/rankings_1973-2017_csv.csv")
 tournaments1877_2017 = read.csv("../Roeser, Jonas - 2_Data/Downloaded Potential Data/tournaments_1877-2017_unindexed_csv.csv")
 
+
+# Stats check ------
+colnames(matchStats1991_2016) == colnames(matchStats2017)              # All true
+sapply(matchStats1991_2016, typeof) == sapply(matchStats2017, typeof)  # All true
+
+matchStats1991_2017 = rbind(matchStats1991_2016, matchStats2017)
+rm(matchStats1991_2016, matchStats2017)
+
+
