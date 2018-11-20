@@ -60,52 +60,77 @@ R = subset(rankings, select = c(week_title,
 R$week_title = as.numeric(as.Date(chartr(".", "-", R$week_title)))
 R = R[order(R$week_title),] # Ordering data according to date
 rownames(R) = 1:nrow(R)
+R$identifier = 1:nrow(R)
+
+# save(R, file = "../2_Data/R.RData")
 
 # We create new columns of NAs that we can later fill up in the for loop
-D$winner_player_rank = NA
-D$winner_ranking_points = NA
-D$winner_player_age = NA
-D$winner_tourneys_played = NA
-D$winner_move_positions = NA
-D$winner_move_direction = NA
+D$winner_column = NA
 
-D$loser_player_rank = NA
-D$loser_ranking_points = NA
-D$loser_player_age = NA
-D$loser_tourneys_played = NA
-D$loser_move_positions = NA
-D$loser_move_direction = NA
+D$loser_column= NA
 
-for(i in 1:nrow(D)) {
-  i=500
-  sth = R %>%
-    filter(week_title < D[i,1])
-  
-  sth = sth %>%
-    filter(sth[,1] == max(sth[,1]))
-  
-  sth1 = sth %>%
-    filter(as.character(sth[,2]) == as.character(D[i,3]))
-  
-  D$winner_player_rank[i] = sth1[1,3]
-  D$winner_ranking_points[i] = sth1[1,4]
-  D$winner_player_age[i] = sth1[1,5]
-  D$winner_tourneys_played[i] = sth1[1,6]
-  D$winner_move_positions[i] = sth1[1,7]
-  D$winner_move_direction[i] = sth1[1,8]
-  
-  sth2 = sth %>%
-    filter(as.character(sth[,2]) == as.character(D[i,4]))
-  
-  D$loser_player_rank[i] = sth2[1,3]
-  D$loser_ranking_points[i] = sth2[1,4]
-  D$loser_player_age[i] = sth2[1,5]
-  D$loser_tourneys_played[i] = sth2[1,6]
-  D$loser_move_positions[i] = sth2[1,7]
-  D$loser_move_direction[i] = sth2[1,8]
-}
+# for(i in 1:nrow(D)) {
+#   sth = R %>%
+#     filter(week_title < D[i,1])
+#   
+#   sth = sth %>%
+#     filter(sth[,1] == max(sth[,1]))
+#   
+#   sth1 = sth %>%
+#     filter(as.character(sth[,2]) == as.character(D[i,3]))
+# 
+#   D$winner_column[i] = sth1[1,9]
+#   
+#   sth2 = sth %>%
+#     filter(as.character(sth[,2]) == as.character(D[i,4]))
+#   
+#   D$loser_column[i] = sth2[1,9]
+# }
 
-save(D, file = "../2_Data/D.RData")
+# # We create new columns of NAs that we can later fill up in the for loop
+# D$winner_player_rank = NA
+# D$winner_ranking_points = NA
+# D$winner_player_age = NA
+# D$winner_tourneys_played = NA
+# D$winner_move_positions = NA
+# D$winner_move_direction = NA
+# 
+# D$loser_player_rank = NA
+# D$loser_ranking_points = NA
+# D$loser_player_age = NA
+# D$loser_tourneys_played = NA
+# D$loser_move_positions = NA
+# D$loser_move_direction = NA
+# 
+# for(i in 1:nrow(D)) {
+#   sth = R %>%
+#     filter(week_title < D[i,1])
+#   
+#   sth = sth %>%
+#     filter(sth[,1] == max(sth[,1]))
+#   
+#   sth1 = sth %>%
+#     filter(as.character(sth[,2]) == as.character(D[i,3]))
+#   
+#   D$winner_player_rank[i] = sth1[1,3]
+#   D$winner_ranking_points[i] = sth1[1,4]
+#   D$winner_player_age[i] = sth1[1,5]
+#   D$winner_tourneys_played[i] = sth1[1,6]
+#   D$winner_move_positions[i] = sth1[1,7]
+#   D$winner_move_direction[i] = sth1[1,8]
+#   
+#   sth2 = sth %>%
+#     filter(as.character(sth[,2]) == as.character(D[i,4]))
+#   
+#   D$loser_player_rank[i] = sth2[1,3]
+#   D$loser_ranking_points[i] = sth2[1,4]
+#   D$loser_player_age[i] = sth2[1,5]
+#   D$loser_tourneys_played[i] = sth2[1,6]
+#   D$loser_move_positions[i] = sth2[1,7]
+#   D$loser_move_direction[i] = sth2[1,8]
+# }
+
+# save(D, file = "../2_Data/D.RData")
 
 # Merging matchScores & matchStats ----------------------------------------
 merged = merge(matchScores, matchStats, by = "match_id") # --> tourney order does not match!?
