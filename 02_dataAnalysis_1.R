@@ -30,25 +30,16 @@ merged1 = merged
 # we now randomise our results, so that a 0 indicates the 2nd player (y) winning whilst a 1
 # indicates the first player (x) winning!
 
-# for (i in 1:nrow(merged)) {
-#   if (merged1$randomisedY[i] == 0) {
-#     merged1$winner_player_id[i] = merged$loser_player_id[i]
-#     merged1$loser_player_id[i] = merged$winner_player_id[i]
-#     
-#     merged1$rank_number.x[i] = merged$rank_number.y[i]
-#     merged1$rank_number.y[i] = merged$rank_number.x[i]
-#   }
-# }
+for (i in 1:nrow(merged)) {
+  if (merged1$randomisedY[i] == 0) {
+    merged1$winner_player_id[i] = merged$loser_player_id[i]
+    merged1$loser_player_id[i] = merged$winner_player_id[i]
 
-Xtrain = as.matrix(merged1[1:(0.7*nrow(merged1)), c(4,6)])
-Ytrain = as.matrix(merged1[1:(0.7*nrow(merged1)), 7])
-Xtest= as.matrix(merged1[(0.7*nrow(merged1)+1):nrow(merged1), c(4,6)])
-Ytest = as.matrix(merged1[(0.7*nrow(merged1)+1):nrow(merged1), 7])
+    merged1$rank_number.x[i] = merged$rank_number.y[i]
+    merged1$rank_number.y[i] = merged$rank_number.x[i]
+  }
+}
 
-data <- data.frame(Ytrain, Xtrain)
-model <- glm(Ytrain ~ ., data, family=binomial(link='logit'))
+# Saving Data
 
-beta_logistic  = model$coefficients
-
-model$fitted.values
-cbind(1,Xtest) %*% beta_logistic
+save(merged1, file = "../Roeser, Jonas - 2_Data/merged1.RData")
