@@ -1,45 +1,87 @@
+
+# ANALYSIS VIA LOGISTIC REGRESSION
+
 library(tidyverse)
-library(dplyr)
 
 rm(list = ls())
 
 # Reading the previously saved version of our data
-load("../Roeser, Jonas - 2_Data/D.RData")
-load("../Roeser, Jonas - 2_Data/R.RData")
+load("../Roeser, Jonas - 2_Data/merged1.RData")
 
 # Because of OneDrive we need to load from two different paths
-load("../2_Data/D.RData")
-load("../2_Data/R.RData")
+load("../2_Data/merged1.RData")
 
 
-merged = merge(D, R, by.x = "winner_column", by.y = "identifier")
-merged = merge(merged, R, by.x = "loser_column", by.y = "identifier")
+# Constructing Test and Train Matrices ------------------------------------
 
-merged = merged[,c("tourney_dates",
-                   "match_id",
-                   "winner_player_id",
-                   "rank_number.x",
-                   "loser_player_id",
-                   "rank_number.y")]
+Xtrain = as.matrix(merged1[1:(0.7*nrow(merged1)), c(4,6)])
+Ytrain = as.matrix(merged1[1:(0.7*nrow(merged1)), 7])
+Xtest= as.matrix(merged1[(0.7*nrow(merged1)+1):nrow(merged1), c(4,6)])
+Ytest = as.matrix(merged1[(0.7*nrow(merged1)+1):nrow(merged1), 7])
 
-merged = merged %>%
-  mutate(randomisedY = sample(c(0,1), replace=TRUE, size=nrow(merged)))
 
-merged1 = merged
+# Training ---------------------------------------------------------------
 
-# we now randomise our results, so that a 0 indicates the 2nd player (y) winning whilst a 1
-# indicates the first player (x) winning!
+data <- data.frame(Ytrain, Xtrain)
+model <- glm(Ytrain ~ ., data, family=binomial(link='logit')) # --> Applying logistic regresion
 
-for (i in 1:nrow(merged)) {
-  if (merged1$randomisedY[i] == 0) {
-    merged1$winner_player_id[i] = merged$loser_player_id[i]
-    merged1$loser_player_id[i] = merged$winner_player_id[i]
+beta_logistic  = model$coefficients # --> Extracting the betas
 
-    merged1$rank_number.x[i] = merged$rank_number.y[i]
-    merged1$rank_number.y[i] = merged$rank_number.x[i]
+# --> Calculating the Etas
+eta_log_train = rep(0, nrow(Xtrain))
+for (i in 1:nrow(Xtrain)) {
+  eta_log_train[i] = round(exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic)),0)
+}
+
+falsePositives = 0
+falseNegatives = 0
+
+
+# Calculating Training Errors ---------------------------------------------
+
+for (i in 1:nrow(Xtrain)) {
+  if(eta_log_train[i] == 1 && Ytrain[i] == 0) {
+    falsePositivesTrain = falsePositivesTrain + 1
+  }
+  if(eta_log_train[i] == 0 && Ytrain[i] == 1) {
+    falseNegativesTrain = falseNegativesTrain + 1
   }
 }
 
-# Saving Data
+falsePositivesTrain = falsePositivesTrain/nrow(Xtrain) # Calculating a percentage
+falseNegativesTrain = falseNegativesTrain/nrow(Xtrain) # Calculating a percentage
+accuracyTrain = 1-(falsePositivesTrain + falseNegativesTrain) # Calculating the accuracy
 
-save(merged1, file = "../Roeser, Jonas - 2_Data/merged1.RData")
+
+# Plotting ----------------------------------------------------------------
+
+plot(Xtest[,1], Xtest[,2])
+points(Xtrain)
+x_line = seq(1, 2000)
+y_line = (-beta_logistic[1] - beta_logistic[2] * x_line) / beta_logistic[3]
+lines(x_line, y_line, col="blue", lwd=2)
+
+
+# Testing -----------------------------------------------------------------
+
+eta_log_test = rep(0, nrow(Xtest))
+for (i in 1:nrow(Xtest)) {
+  eta_log[i] = exp(c(1, Xtest[i,]) %*% beta_logistic) / (1+exp(c(1,Xtest[i,]) %*% beta_logistic))
+}
+
+
+# Calculating Testing Errors ----------------------------------------------
+
+for (i in 1:nrow(Xtest)) {
+  if(eta_log_test[i] == 1 && Ytest[i] == 0) {
+    falsePositivesTest = falsePositivesTest + 1
+  }
+  if(eta_log_test[i] == 0 && Ytest[i] == 1) {
+    falseNegativesTest = falseNegativesTest + 1
+  }
+}
+
+falsePositivesTest = falsePositivesTest/nrow(Xtest) # Calculating a percentage
+falseNegativesTest = falseNegativesTest/nrow(Xtest) # Calculating a percentage
+accuracyTest = 1-(falsePositivesTest + falseNegativesTest) # Calculating the accuracy
+
