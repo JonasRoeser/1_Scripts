@@ -6,22 +6,27 @@ rm(list = ls())
 
 # Reading the previously saved version of our data
 load("../Roeser, Jonas - 2_Data/data1991_2017.RData")
-load("../Roeser, Jonas - 2_Data/matches_shuffled.RData")
+load("../Roeser, Jonas - 2_Data/matches_W_rkns.RData")
 
 # Because of OneDrive we need to load from two different paths
 load("../2_Data/data1991_2017.RData")
-load("../2_Data/matches_shuffled.RData")
+load("../2_Data/matches_W_rkns.RData")
 
 
+# --- reording columns, omitting player_rank_id and week_title
+matches_w_rkns = matches_w_rkns[c(3:5,10:15,6,18:23,7)]
+
+# adding a match sequence id, so we can resort our data when the merging makes everything messy
+matches_w_rkns$match_sq = 1:nrow(matches_w_rkns)
 
 
-# Merging matches_shuffled & playerOverviews ----------------------------------------
+# Merging matches & playerOverviews ----------------------------------------
 
-D = merge(matches_shuffled, playerOverviews, by.x = "player0", by.y = "player_id")
+D = merge(matches_w_rkns, playerOverviews, by.x = "player0", by.y = "player_id")
 D = merge(D, playerOverviews, by.x = "player1", by.y = "player_id")
 
 # --> reording columns, omitting redundant data (e.g. weight in lbs)
-D = D[c(3:4,2,5:10,18,22:25,29,31,34:36,1,11:16,37,41:44,48,50,53:55,17)]
+#D = D[c(3:4,2,5:10,18,22:25,29,31,34:36,1,11:16,37,41:44,48,50,53:55,17)]
 
 
 # Merging D & matchScores ----------------------------------------
@@ -38,8 +43,11 @@ D = merge(D, tournaments, by = "tourney_year_id")
 
 D = merge(D, matchStats, by = "match_id")
 
+# Omitting all redundant or utterly useless colums (e.g website links) and resorting
+#all match stats dropped except match duration ( match stats would be colnr(61,62,64:73, 102:148))
+D = D[c(19,5,1,2,74,75,79,81:83,85,87,88,58:60, 63,100,4,20:22,24:26,6:11,31,33,36:38,3,39:41,43:45,12:17,50, 52, 55:57,18)]
 
-# --> tourney order does not match!?
+
 
 # Feature Ideas -----------------------------------------------------------
 

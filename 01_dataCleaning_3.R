@@ -1,16 +1,16 @@
-# MERGING EVRYTHING INTO ONE BIG DATAFRAME D
-
+  # SHUFFELING AND MERGING WITH CORRECT RANKINGS
+  
 library(tidyverse)
 
 rm(list = ls())
 
 # Reading the previously saved version of our data
-#load("../Roeser, Jonas - 2_Data/data1991_2017.RData")
+load("../Roeser, Jonas - 2_Data/data1991_2017.RData")
 load("../Roeser, Jonas - 2_Data/matches.RData")
 load("../Roeser, Jonas - 2_Data/rankings.RData")
 
 # Because of OneDrive we need to load from two different paths
-#load("../2_Data/data1991_2017.RData")
+load("../2_Data/data1991_2017.RData")
 load("../2_Data/matches.RData")
 load("../2_Data/rankings.RData")
 
@@ -36,25 +36,26 @@ for (i in 1:nrow(matches)) {
   }
 }
 
+# --> now we don't need the original (sorted) matches dataframe anymore, so we overwrite it
+matches = matches_shuffled
+rm(matches_shuffled)
 
 # --> we rename to player0 and player1
-colnames(matches_shuffled) = c("tourney_dates",
-                               "match_id",
-                               "player0",
-                               "player1",
-                               "player0_rank_id",
-                               "player1_rank_id",
-                               "Y")
+colnames(matches) = c("tourney_dates",
+                      "match_id",
+                      "player0",
+                      "player1",
+                      "player0_rank_id",
+                      "player1_rank_id",
+                      "Y")
 
 
 # Merging matches and rankings --------------------------------------------
 
-matches_shuffled = merge(matches_shuffled, rankings, by.x = "player0_rank_id", by.y = "identifier")
-matches_shuffled = merge(matches_shuffled, rankings, by.x = "player1_rank_id", by.y = "identifier")
+matches = merge(matches, rankings, by.x = "player0_rank_id", by.y = "identifier")
+matches = merge(matches, rankings, by.x = "player1_rank_id", by.y = "identifier")
 
-# --> reording columns, omitting player_rank_id and week_title
-matches_shuffled = matches_shuffled[c(3:5,19:15,6,18:23,7)]
+#Saving this shuufled matches with the correctly assigned rankings so we can keep the og matches for later reference
+matches_w_rkns = matches
+save(matches_w_rkns, file = "../Roeser, Jonas - 2_Data/matches_w_rkns.RData")
 
-#save
-
-save(matches_shuffled, file = "../Roeser, Jonas - 2_Data/matches_shuffled.RData")
