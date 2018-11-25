@@ -41,6 +41,30 @@ D = merge(D, matchStats, by = "match_id")
 # all match stats dropped except match duration ( match stats would be colnr(61,62,64:73, 102:148))
 D = D[c(19,5,1,2,74,75,79,81:83,85,87,88,58:60,63,100,4,20:22,24:26,6:11,31,33,36:38,3,39:41,43:45,12:17,50,52,55:57,18)]
 
+# Create match order from "tourney_year", "tourney_order", reversed "round_order"
+# Format: "year-tourney_order-reversed_round_order"
+
+# Maximum rounds in one tourney
+which
+
+
+D = D %>%
+  mutate(reversed_round_order = sapply(as.character(D$round_order), switch,
+                                       "1" = 9,
+                                       "2" = 8,
+                                       "3" = 7,
+                                       "4" = 6,
+                                       "5" = 5,
+                                       "6" = 4,
+                                       "7" = 3,
+                                       "8" = 2,
+                                       "9" = 1,
+                                       "10" = 0
+                                       ))
+ D = D %>%
+   mutate(order_sq = paste(D$tourney_year, D$tourney_order, as.character(D$reversed_round_order), sep ="-"))
+
+
 
 # Saving -------------------------------------------------------------
 
