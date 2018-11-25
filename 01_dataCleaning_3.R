@@ -27,15 +27,15 @@ matches_shuffled = matches
 
 # we now randomise our results, so that a 0 indicates the player0 winning whilst a 1
 # indicates the first player1 winning!
-for (i in 1:nrow(matches)) {
-  if (matches_shuffled$randomisedY[i] == 1) {
-    matches_shuffled$winner_player_id[i] = matches$loser_player_id[i]
-    matches_shuffled$loser_player_id[i] = matches$winner_player_id[i]
-    
-    matches_shuffled$winner_column[i] = matches$loser_column[i]
-    matches_shuffled$loser_column[i] = matches$winner_column[i]
-  }
-}
+# for (i in 1:nrow(matches)) {
+#   if (matches_shuffled$randomisedY[i] == 1) {
+#     matches_shuffled$winner_player_id[i] = matches$loser_player_id[i]
+#     matches_shuffled$loser_player_id[i] = matches$winner_player_id[i]
+#     
+#     matches_shuffled$winner_column[i] = matches$loser_column[i]
+#     matches_shuffled$loser_column[i] = matches$winner_column[i]
+#   }
+# }
 
 # --> now we don't need the original (sorted) matches dataframe anymore, so we overwrite it
 matches = matches_shuffled
@@ -86,7 +86,11 @@ D = merge(D, matchStats, by = "match_id")
 
 # --> tourney order does not match!?
 
+# save(D, file = "../2_Data/D.RData")
+
+
 # Feature Ideas -----------------------------------------------------------
+
 
 # Was für features wollen wir?
 #   
