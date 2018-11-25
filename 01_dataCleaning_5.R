@@ -1,58 +1,62 @@
-# QUALIFYING CONDITIONS
+# MODIFYING THE DATAFRAME
 
 # Setup --------------------------------------------------------------
 
 library(tidyverse)
 
+
 rm(list = ls())
 
 # Reading the previously saved version of our data
+load("../Roeser, Jonas - 2_Data/data1991_2017.RData")
 load("../Roeser, Jonas - 2_Data/D.RData")
 
 # Because of OneDrive we need to load from two different paths
+load("../2_Data/data1991_2017.RData")
 load("../2_Data/D.RData")
 
-# First Section yet to be named --------------------------------------
+# So we dont get NULLS later 
+D$move_direction.x = as.double(D$move_direction.x)
+D$move_direction.y = as.double(D$move_direction.y)
 
-# Forcing these columns to be characters so (sapply and) switch work (otherwise factor problems)
+# quantifiying conditions
+
+#forcing these colums to be characters so (sapply and) switch work (otherwise factor problems)
 D$tourney_conditions = as.character(D$tourney_conditions)
 D$tourney_surface = as.character(D$tourney_surface)
 
 D$move_direction.x = as.character(D$move_direction.x)
 D$move_direction.y = as.character(D$move_direction.y)
 
-# making Na to 0 in move directions
+
+
+#making Na to 0 in move directions
 D[["move_positions.x"]][is.na(D[["move_positions.x"]])] <- 0
 D[["move_positions.y"]][is.na(D[["move_positions.y"]])] <- 0
-
-
 
 D <- D %>%
   mutate(tourney_conditions = sapply(D$tourney_conditions, switch, 
                                      Outdoor = 1, 
-                                     Indoor = 2) ) %>%           
+                                     Indoor = 0) ) %>%           
   mutate(tourney_surface = sapply(D$tourney_surface, switch, 
                                   Clay = 1,
                                   Grass = 2,
                                   Hard = 3,
                                   Carpet = 4)) %>%
-  mutate(move_direction.x = sapply(D$move_direction.x, switch, #Still NULLS
-                                   up = 1, 
-                                   down = (-1) )) %>%
-  mutate(move_direction.y = sapply(D$move_direction.y, switch, #Still NULLS
-                                   up = 1, 
-                                   down = (-1) ))
+  mutate(move_direction.x = sapply(D$move_direction.x, switch, 
+                                   "3" = 1,
+                                   "2" = (-1),
+                                   "1" = 0)) %>%
+  mutate(move_direction.y = sapply(D$move_direction.y, switch, 
+                                   "3" = 1, 
+                                   "2" = (-1),
+                                   "1" = 0)) %>%
+  mutate(ranking_move_p0 = move_positions.x * move_direction.x ) %>%
+  mutate(ranking_move_p1 = move_positions.y * move_direction.y )
 
-#  mutate(ranking_move_p0 = move_positions.x * move_direction.x ) #still problem wit NULL
+#Quantifying more shizzel
+D$tourney_round_name = as.double(D$tourney_round_name)
 
-
-
-#    mutate(tourney_slug = sapply(D$tourney_slug, switch, 
-#                                             "australian-open" = 2000, 
-#                                             "french-open" = 2000,
-#                                             "us-open" = 2000,
-#                                             "wimbledon" = 2000,
-#                                                                ) )
 # 
 
 # Feature Ideas -----------------------------------------------------------
