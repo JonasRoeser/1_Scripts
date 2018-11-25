@@ -50,23 +50,27 @@ D = D[c(19,5,1,2,74,75,79,81:83,85,87,88,58:60, 63,100,4,20:22,24:26,6:11,31,33,
 #renaming
 
 # quantifiying conditions
+# quantifiying conditions
+
+D$tourney_conditions = as.character(D$tourney_conditions)
+D$tourney_surface = as.character(D$tourney_surface)
+
 D <- D %>%
   mutate(tourney_conditions = sapply(D$tourney_conditions, switch, 
-                     "Outdoor" = 1, 
-                     "Indoor" = 0) ) %>%
+                                     Outdoor = 1, 
+                                     Indoor = 2) ) %>%
   mutate(tourney_surface = sapply(D$tourney_surface, switch, 
-                                     "Clay" = 1, 
+                                     "Clay" = 1,
                                      "Grass" = 2,
                                      "Hard" = 3,
-                                     "Carpet" = 4)) %>%
-   mutate(tourney_slug = sapply(D$tourney_slug, switch, 
-                                            "australian-open" = 2000, 
-                                            "french-open" = 2000,
-                                            "us-open" = 2000,
-                                            "wimbledon" = 2000,
-                                                               ) )
-
-
+                                     "Carpet" = 4)) #%>%
+#    mutate(tourney_slug = sapply(D$tourney_slug, switch, 
+#                                             "australian-open" = 2000, 
+#                                             "french-open" = 2000,
+#                                             "us-open" = 2000,
+#                                             "wimbledon" = 2000,
+#                                                                ) )
+# 
 
 # Feature Ideas -----------------------------------------------------------
 
