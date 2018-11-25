@@ -50,20 +50,42 @@ D = D[c(19,5,1,2,74,75,79,81:83,85,87,88,58:60, 63,100,4,20:22,24:26,6:11,31,33,
 #renaming
 
 # quantifiying conditions
-# quantifiying conditions
 
+#forcing these colums to be characters so (sapply and) switch work (otherwise factor problems)
 D$tourney_conditions = as.character(D$tourney_conditions)
 D$tourney_surface = as.character(D$tourney_surface)
+
+D$move_direction.x = as.character(D$move_direction.x)
+D$move_direction.y = as.character(D$move_direction.y)
+
+
+
+#making Na to 0 in move directions
+D[["move_positions.x"]][is.na(D[["move_positions.x"]])] <- 0
+D[["move_positions.y"]][is.na(D[["move_positions.y"]])] <- 0
+
+
 
 D <- D %>%
   mutate(tourney_conditions = sapply(D$tourney_conditions, switch, 
                                      Outdoor = 1, 
-                                     Indoor = 2) ) %>%
+                                     Indoor = 2) ) %>%           
   mutate(tourney_surface = sapply(D$tourney_surface, switch, 
-                                     "Clay" = 1,
-                                     "Grass" = 2,
-                                     "Hard" = 3,
-                                     "Carpet" = 4)) #%>%
+                                     Clay = 1,
+                                     Grass = 2,
+                                     Hard = 3,
+                                     Carpet = 4)) %>%
+  mutate(move_direction.x = sapply(D$move_direction.x, switch, #Still NULLS
+                                     up = 1, 
+                                     down = (-1) )) %>%
+  mutate(move_direction.y = sapply(D$move_direction.y, switch, #Still NULLS
+                                   up = 1, 
+                                   down = (-1) ))
+
+#  mutate(ranking_move_p0 = move_positions.x * move_direction.x ) #still problem wit NULL
+
+  
+  
 #    mutate(tourney_slug = sapply(D$tourney_slug, switch, 
 #                                             "australian-open" = 2000, 
 #                                             "french-open" = 2000,
