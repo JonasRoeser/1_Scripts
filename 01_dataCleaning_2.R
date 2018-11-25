@@ -1,5 +1,6 @@
+# PREPARING THE MERGE OF RANKINGS (MORE DIFFICULT THAN THE OTHERS)
 
-# PREPARING THE MERGER OF RANKINGS (MORE DIFFICULT THAN THE OTHERS)
+# Setup --------------------------------------------------------------
 
 library(tidyverse)
 
@@ -12,19 +13,18 @@ load("../Roeser, Jonas - 2_Data/data1991_2017.RData")
 load("../2_Data/data1991_2017.RData")
 
 
-# Checking for columns that allow us to merge the dataframes --------------
+# Checking for columns that allow us to merge the dataframes ---------
 
 sapply(tournaments, class) # tourney_year_id "factor", tourney_dates "factor"
 sapply(matchScores, class) # match_id "factor, tourney_year_id "factor"
 sapply(matchStats, class) # match_id "factor"
 sapply(rankings, class) # week_title "factor", player_id "factor"
 sapply(playerOverviews, class) # player_id "factor", 
-
-# --> We can merge every dataset except rankings without further preparation
+# We can merge every dataset except rankings without further preparation
 # Furthermore: in our data the winner is always the first player of the two!
 
 
-# Selecting relevant columns from matchScores -----------------------------
+# Selecting relevant columns from matchScores -------------------------
 
 matches = subset(matchScores, select = c(tourney_year_id,
                                     match_id,
@@ -66,8 +66,6 @@ rankings = rankings[order(rankings$week_title),] # Ordering data according to da
 rownames(rankings) = 1:nrow(rankings)
 rankings$identifier = 1:nrow(rankings)
 
-# save(rankings, file = "../2_Data/rankings.RData")
-
 # We create new columns of NAs that we can later fill up in the for loop
 matches$winner_column = NA
 
@@ -92,4 +90,9 @@ matches$loser_column= NA
 #   matches$loser_column[i] = sth2[1,9]
 # }
 
-# save(matches, file = "../2_Data/matches.RData")
+
+# Saving -------------------------------------------------------------
+
+# Saving "rankings" and "matches" to rankings.RData and matches.RData
+save(matches, file = "../2_Data/matches.RData")
+save(rankings, file = "../2_Data/rankings.RData")
