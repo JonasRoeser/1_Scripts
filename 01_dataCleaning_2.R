@@ -1,4 +1,4 @@
-# PREPARING THE MERGE OF RANKINGS (MORE DIFFICULT THAN THE OTHERS)
+# PREPARING THE MERGER OF MATCHES & RANKINGS DATA
 
 # Setup --------------------------------------------------------------
 
@@ -37,9 +37,9 @@ matches = subset(matchScores, select = c(tourney_year_id,
 # This will give us a tourney_dates column, that can then be used to match matchScores
 # rankings.
 matches = subset(merge(matches, tournaments, by = "tourney_year_id"), select = c(tourney_dates,
-                                                                     match_id,
-                                                                     winner_player_id,
-                                                                     loser_player_id))
+                                                                                 match_id,
+                                                                                 winner_player_id,
+                                                                                 loser_player_id))
 
 # In order to be able to match matchScores & rankings we match the new column in matches
 # tourney_year_id, with the column week_title in rankings.
@@ -71,7 +71,7 @@ matches$winner_column = NA
 
 matches$loser_column= NA
 
-# WARNING: this for-loop takes ages!
+# WARNING: this for-loop takes quite some time to finish!
 # for(i in 1:nrow(matches)) {
 #   sth = R %>%
 #     filter(week_title < matches[i,1])
@@ -94,5 +94,5 @@ matches$loser_column= NA
 # Saving -------------------------------------------------------------
 
 # Saving "rankings" and "matches" to rankings.RData and matches.RData
-save(matches, file = "../2_Data/matches.RData")
-save(rankings, file = "../2_Data/rankings.RData")
+# save(matches, file = "../Roeser, Jonas - 2_Data/matches.RData")
+# save(rankings, file = "../Roeser, Jonas - 2_Data/rankings.RData")

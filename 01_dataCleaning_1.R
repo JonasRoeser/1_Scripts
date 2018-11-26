@@ -80,4 +80,4 @@ rm(matchStats1991_2016,
 # Saving -------------------------------------------------------------
 
 # Save all remaining datasets in an image
-save.image(file="../Roeser, Jonas - 2_Data/data1991_2017.RData")
+# save.image(file="../Roeser, Jonas - 2_Data/data1991_2017.RData")

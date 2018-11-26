@@ -1,4 +1,4 @@
-# SHUFFELING AND MERGING WITH CORRECT RANKINGS
+# SHUFFELING & MERGING MTACHES WITH CORRECT RANKINGS DATA
 
 # Setup -------------------------------------------------------------------
 
@@ -60,10 +60,10 @@ colnames(matches) = c("tourney_dates",
 matches = merge(matches, rankings, by.x = "player0_rank_id", by.y = "identifier")
 matches = merge(matches, rankings, by.x = "player1_rank_id", by.y = "identifier")
 
+
 # Saving -------------------------------------------------------------
 
 # Saving this shuffled matches with the correctly assigned rankings so
-# we can keep the og matches for later reference
+# we can keep the old matches data for later reference.
 matches_w_rkns = matches
-save(matches_w_rkns, file = "../Roeser, Jonas - 2_Data/matches_w_rkns.RData")
-
+# save(matches_w_rkns, file = "../Roeser, Jonas - 2_Data/matches_w_rkns.RData")

@@ -1,4 +1,4 @@
-# MERGE MERGE MERGE
+# MERGE MATCHES_W_RKNS WITH ALL REMAINING DATASETS, DROPPING COLUMNS, ORDERING ROWS
 
 # Setup --------------------------------------------------------------
 
@@ -14,6 +14,7 @@ load("../Roeser, Jonas - 2_Data/matches_W_rkns.RData")
 load("../2_Data/data1991_2017.RData")
 load("../2_Data/matches_W_rkns.RData")
 
+
 # Data preparation ---------------------------------------------------
 
 # Reording columns, omitting "player_rank_id" and "week_title"
@@ -22,9 +23,10 @@ matches_w_rkns = matches_w_rkns[c(3:5,10:15,6,18:23,7)]
 # Adding a match sequence id, so we can resort our data when the merging messes up the order
 matches_w_rkns$match_sq = 1:nrow(matches_w_rkns)
 
+
 # Merging dataframes -------------------------------------------------
 
-# Merging "matches" & "playerOverviews"
+# Merging "matches_w_rkns" & "playerOverviews"
 D = merge(matches_w_rkns, playerOverviews, by.x = "player0", by.y = "player_id")
 D = merge(D, playerOverviews, by.x = "player1", by.y = "player_id")
 
@@ -37,9 +39,17 @@ D = merge(D, tournaments, by = "tourney_year_id")
 # Merging "D" & "matchStats" 
 D = merge(D, matchStats, by = "match_id")
 
-# Omitting all redundant or utterly useless colums (e.g website links) and resorting
+
+
+# Dropping columns --------------------------------------------------------
+
+# Omitting all redundant colums (e.g website links) and resorting
 # all match stats dropped except match duration ( match stats would be colnr(61,62,64:73, 102:148))
-D = D[c(19,5,1,2,70,71,74,75,79,81:83,85,87,88,58:60,63,100,4,20:22,24:26,6:11,31,33,36:38,3,39:41,43:45,12:17,50,52,55:57,18)]
+D = D[c(5,1,2,70,71,74,75,79,81:83,85,87,88,58:60,63,100,4,20:22,24:26,6:11,31,33,36:38,3,39:41,43:45,12:17,50,52,55:57,18)]
+
+
+
+# Building sequencer ------------------------------------------------------
 
 # Create match order from "tourney_year", "tourney_order", reversed "round_order"
 # Format: "year-tourney_order-reversed_round_order"
@@ -72,9 +82,9 @@ D = D[order(D$order_sq),]
 rownames(D) = 1:nrow(D)
 
 
-
-
 # Saving -------------------------------------------------------------
 
-# Saving "D" as D.RData
-save(D, file = "../Roeser, Jonas - 2_Data/D.RData")
+# Saving "D0" as D0.RData
+D0 = D
+# save(D0, file = "../Roeser, Jonas - 2_Data/D0.RData")
+save(D0, file = "../2_Data/D0.RData")
