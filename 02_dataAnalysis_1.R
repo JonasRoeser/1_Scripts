@@ -26,11 +26,13 @@ data <- data.frame(Ytrain, Xtrain)
 model <- glm(Ytrain ~ ., data, family=binomial(link='logit')) # --> Applying logistic regresion
 
 beta_logistic  = model$coefficients # --> Extracting the betas
+# exporting the betas
+# save(beta_logistic, file = "../2_Data/beta_logistic.RData")
 
 # --> Calculating the Etas
 eta_log_train = rep(0, nrow(Xtrain))
 for (i in 1:nrow(Xtrain)) {
-  eta_log_train[i] = round(exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic)),0)
+  eta_log_train[i] = round(exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic)))
 }
 
 # Calculating Training Errors ---------------------------------------------

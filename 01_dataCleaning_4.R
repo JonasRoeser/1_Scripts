@@ -63,11 +63,11 @@ D = D %>%
                                        "10" = "01"
                                        ))
 
-# 
+# Creating the time logical sequence column order_sq
 D = D %>%
   mutate(order_sq = paste(D$tourney_year, sprintf("%02d",D$tourney_order.x), as.character(D$reversed_round_order), sep ="-"))
 
-# 
+# Ordering D according to order_sq and renaming the rows accordingly
 D = D[order(D$order_sq),]
 rownames(D) = 1:nrow(D)
 
