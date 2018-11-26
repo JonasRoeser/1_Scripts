@@ -33,11 +33,10 @@ for (i in 1:nrow(Xtrain)) {
   eta_log_train[i] = round(exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic)),0)
 }
 
-falsePositives = 0
-falseNegatives = 0
-
-
 # Calculating Training Errors ---------------------------------------------
+
+falsePositivesTrain = 0
+falseNegativesTrain = 0
 
 for (i in 1:nrow(Xtrain)) {
   if(eta_log_train[i] == 1 && Ytrain[i] == 0) {
@@ -66,11 +65,14 @@ lines(x_line, y_line, col="blue", lwd=2)
 
 eta_log_test = rep(0, nrow(Xtest))
 for (i in 1:nrow(Xtest)) {
-  eta_log[i] = exp(c(1, Xtest[i,]) %*% beta_logistic) / (1+exp(c(1,Xtest[i,]) %*% beta_logistic))
+  eta_log_test[i] = round(exp(c(1, Xtest[i,]) %*% beta_logistic) / (1+exp(c(1,Xtest[i,]) %*% beta_logistic)))
 }
 
 
 # Calculating Testing Errors ----------------------------------------------
+
+falsePositivesTest = 0
+falseNegativesTest = 0
 
 for (i in 1:nrow(Xtest)) {
   if(eta_log_test[i] == 1 && Ytest[i] == 0) {
