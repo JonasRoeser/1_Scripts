@@ -15,9 +15,15 @@ load("../Roeser, Jonas - 2_Data/D.RData")
 load("../2_Data/data1991_2017.RData")
 load("../2_Data/D.RData")
 
-# So we dont get NULLS later 
+# So we dont get NULLS later ----------------
 D$move_direction.x = as.double(D$move_direction.x)
 D$move_direction.y = as.double(D$move_direction.y)
+
+D$handedness.x = as.double(D$handedness.x) 
+D$backhand.x = as.double(D$backhand.x) 
+
+D$handedness.y = as.double(D$handedness.y) 
+D$backhand.y = as.double(D$backhand.y) 
 
 # quantifiying conditions
 
@@ -54,14 +60,16 @@ D <- D %>%
   mutate(ranking_move_p0 = move_positions.x * move_direction.x ) %>%
   mutate(ranking_move_p1 = move_positions.y * move_direction.y )
 
+
 #Quantifying more shizzel
 D$tourney_round_name = as.double(D$tourney_round_name)
 
 # 
 
+
 # Feature Ideas -----------------------------------------------------------
 
-# Was fÃ¼r features wollen wir?
+# Was für features wollen wir?
 #   
 # Vorhanden
 # Weltranglistenrang zum Zeitpunkt des Spiels (W/L)
@@ -81,7 +89,7 @@ D$tourney_round_name = as.double(D$tourney_round_name)
 # Age
 
 # 1. Wie brauchen ein Dataset mit allen Spielern und Ihren Geburtsdaten
-# 2. Zwei Spalten erstellen, die wir mit ALter fÃ¼llen wollen (W/L)
+# 2. Zwei Spalten erstellen, die wir mit ALter füllen wollen (W/L)
 # 3. Aus dem Dataset mit Playerdata Geburstdatum nehmen und mit Spieldatum zu einem Alter
 #    errechnen (Rechnen mit Dates siehe Script aus Workshop)
 # 
