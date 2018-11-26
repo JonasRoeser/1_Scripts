@@ -6,18 +6,19 @@ library(tidyverse)
 rm(list = ls())
 
 # Reading the previously saved version of our data
-load("../Roeser, Jonas - 2_Data/merged1.RData")
+load("../Roeser, Jonas - 2_Data/D1.RData")
 
 # Because of OneDrive we need to load from two different paths
-load("../2_Data/merged1.RData")
+load("../2_Data/D1.RData")
 
 
 # Constructing Test and Train Matrices ------------------------------------
 
-Xtrain = as.matrix(merged1[1:(0.7*nrow(merged1)), c(4,6)])
-Ytrain = as.matrix(merged1[1:(0.7*nrow(merged1)), 7])
-Xtest= as.matrix(merged1[(0.7*nrow(merged1)+1):nrow(merged1), c(4,6)])
-Ytest = as.matrix(merged1[(0.7*nrow(merged1)+1):nrow(merged1), 7])
+# Strucure of X: player0rank, player1rank
+Xtrain = as.matrix(D1[1:(0.7*nrow(D1)), c(27,45)])
+Ytrain = as.matrix(D1[1:(0.7*nrow(D1)), 56])
+Xtest= as.matrix(D1[(0.7*nrow(D1)+1):nrow(D1), c(27,45)])
+Ytest = as.matrix(D1[(0.7*nrow(D1)+1):nrow(D1), 56])
 
 
 # Training ---------------------------------------------------------------
