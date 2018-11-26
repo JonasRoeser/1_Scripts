@@ -14,7 +14,7 @@ load("../2_Data/D.RData")
 
 # Create three columns for h2h ...
 
-D = D[c(59,21,39,57)] %>%
+D = D[c(59,21,39,57,3)] %>%
   mutate(h2h_player0 = 0) %>%
   mutate(h2h_player1 = 0) %>%
   mutate(h2h = 0)
