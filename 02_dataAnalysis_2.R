@@ -1,39 +1,54 @@
+# RANDOM FORESTS WITH BAGGING
+
+
+# Setup-------------------------
+
 library(ggplot2)
 library(cowplot)
 library(randomForest)
 
 rm(list = ls())
-load("../Roeser, Jonas - 2_Data/U.RData")
 
+load("../Roeser, Jonas - 2_Data/U.RData")
+load("../2_Data/U.RData")
+
+
+# Preperation ------------
+
+set.seed(1)
+
+
+# Data Formatting
 U1 = U[c(5,7,9,11,12)]
 
 U1 = na.omit(U1)
 
 
-
-
-# build a random forest--------
-
-set.seed(1)
-
-
-#so we dont get fuggin 70 gb of randome forests
-train = U1[1:5000,] #we cannot take the whole dataset because R will not compute files that big
+# We cannot take the whole dataset because of computational restrictions (so we dont get 70 gb)
+train = U1[1:5000,] 
 test = U1[5001:10000,]
 
 train$Y.x = as.factor(train$Y.x)
-class(train$Y.x)
-model <- randomForest(Y.x ~ ., data=train,ntree=500, proximity=TRUE) #starting point was 500 trees and the OOB error was also 39 %
-# -> not real improvements
-## now see what the OOB error rate is
-model 
+test$Y.x = as.factor(test$Y.x)
 
-#testing
-predictions <- as.data.frame(predict(model, test, type = "prob"))
-#number of trees is 500 -> will there be any improvement if we make more trees?
+# Building and Training Model ----------------------------------------
 
-#plotting the error rates
-oob.error.data <- data.frame(
+# Finding the optimal number of variable at each internal nodes
+oob.values = vector(length=4)
+
+for(i in 1:4) {
+  temp.model = randomForest(Y.x ~ ., data=train, mtry=i, ntree=1000)
+  oob.values[i] = temp.model$err.rate[nrow(temp.model$err.rate),1]
+}
+oob.values
+# --> We can see that mtry=1 yields the lowest OOB error rate
+
+# Running the random forest with the built in function of the 
+model = randomForest(Y.x ~ ., data=train, mtry =1, ntree=1000, proximity=TRUE) 
+# --> Looking at "model" we can see what the OOB error rate is .......
+
+# Plotting the error rate to see how many trees are necessary
+oob.error.data = data.frame(
   Trees=rep(1:nrow(model$err.rate), times=3),
   Type=rep(c("OOB", "1", "0"), each=nrow(model$err.rate)),
   Error=c(model$err.rate[,"OOB"],
@@ -42,25 +57,13 @@ oob.error.data <- data.frame(
 
 ggplot(data=oob.error.data, aes(x=Trees, y=Error)) +
   geom_line(aes(color=Type))
+# --> We can see that in this particular case the Error rate is ......
+
+# Getting probabilities predictions ----------------------------------
+predictions = as.data.frame(predict(model, train, type = "prob"))
 
 
-#trying it with 1000 trees
-model <- randomForest(Y ~ ., data=test, ntree=1000, proximity=TRUE)
-model
-#OOB error rate has not improved (still around 39,11 %)
-
-#finding the optimal number of variable at each internal nodes
-
-oob.values <- vector(length=10)
-
-for(i in 1:10) {
-  temp.model <- randomForest(Y.x ~ ., data=test, mtry=i, ntree=1000)
-  oob.values[i] <- temp.model$err.rate[nrow(temp.model$err.rate),1]
-}
-oob.values
-
-
-
+# More plotting shizzel that I do not understand -------------
 # converting the proximity matrix into a distance matrix.
 distance.matrix <- dist(1-model$proximity)
 
