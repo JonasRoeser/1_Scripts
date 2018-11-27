@@ -79,7 +79,5 @@ for (i in 1:nrow(D1)) {
 
 # Saving -------------------------------------------------------------
 
-D2 = D1
-# save(D2, file = "../Roeser, Jonas - 2_Data/D2.RData")
-D2noNA = D1[which(!is.na(D1$form_player1) & !is.na(D1$form_player0)),]
-# save(D2noNA, file = "../Roeser, Jonas - 2_Data/D2noNA.RData")
+form = D1
+# save(form, file = "../Roeser, Jonas - 2_Data/form.RData")

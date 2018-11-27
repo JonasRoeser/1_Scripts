@@ -80,5 +80,5 @@ for (i in 1:nrow(D1)) {
 # Saving -------------------------------------------------------------
 
 # Saving "D3" as D3.RData
-D3 = D1
-# save(D3, file = "../Roeser, Jonas - 2_Data/D3.RData")
+condition_wins = D1
+# save(condition_wins, file = "../Roeser, Jonas - 2_Data/condition_wins.RData")
