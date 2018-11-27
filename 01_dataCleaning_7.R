@@ -52,9 +52,6 @@ for (i in 1:nrow(D)) {
   }
 }
 
-
-load("../Roeser, Jonas - 2_Data/h2h.RData")
-D = h2h
 # gar nicht koscher
 D$h2h_v2_player0 = D$h2h_player0 + 1
 D$h2h_v2_player1 = D$h2h_player1 + 1
@@ -69,10 +66,6 @@ for (i in 1:nrow(D)) {
     D$h2h_player1[i] = D$h2h_player1[i]/D$h2h[i]
   }
 }
-
-D = select(D, -11)
-
-
 
 # Saving -------------------------------------------------------------
 
