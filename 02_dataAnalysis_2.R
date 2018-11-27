@@ -3,10 +3,13 @@ library(cowplot)
 library(randomForest)
 
 rm(list = ls())
-load("../Roeser, Jonas - 2_Data/matches_w_rkns.RData")
+load("../Roeser, Jonas - 2_Data/U.RData")
+
+U1 = U[c(5,7,9,11,12)]
+
+U1 = na.omit(U1)
 
 
-test = matches_w_rkns[c(10,18,7)]
 
 
 # build a random forest--------
@@ -15,16 +18,18 @@ set.seed(1)
 
 
 #so we dont get fuggin 70 gb of randome forests
-test = test[1:15000,] #we cannot take the whole dataset because R will not compute files that big
+train = U1[1:5000,] #we cannot take the whole dataset because R will not compute files that big
+test = U1[5001:10000,]
 
-
-test$Y = as.factor(test$Y)
-class(test$Y)
-model <- randomForest(Y ~ ., data=test,ntree=500, proximity=TRUE) #starting point was 500 trees and the OOB error was also 39 %
+train$Y.x = as.factor(train$Y.x)
+class(train$Y.x)
+model <- randomForest(Y.x ~ ., data=train,ntree=500, proximity=TRUE) #starting point was 500 trees and the OOB error was also 39 %
 # -> not real improvements
 ## now see what the OOB error rate is
 model 
 
+#testing
+predictions <- as.data.frame(predict(model, test, type = "prob"))
 #number of trees is 500 -> will there be any improvement if we make more trees?
 
 #plotting the error rates
@@ -49,27 +54,23 @@ model
 oob.values <- vector(length=10)
 
 for(i in 1:10) {
-  temp.model <- randomForest(Y ~ ., data=test, mtry=i, ntree=1000)
+  temp.model <- randomForest(Y.x ~ ., data=test, mtry=i, ntree=1000)
   oob.values[i] <- temp.model$err.rate[nrow(temp.model$err.rate),1]
 }
 oob.values
 
-# this is 1 (obviously bcause we only had 2 features)
 
 
-## NOW: an MDS-plot to show how the samples are related to each
-## other.
-##
-## Start by converting the proximity matrix into a distance matrix.
+# converting the proximity matrix into a distance matrix.
 distance.matrix <- dist(1-model$proximity)
 
 mds.stuff <- cmdscale(distance.matrix, eig=TRUE, x.ret=TRUE)
 
-## calculate the percentage of variation that each MDS axis accounts for...
+#the percentage of variation that each MDS axis accounts for...
 mds.var.per <- round(mds.stuff$eig/sum(mds.stuff$eig)*100, 1)
 
-## now make a fancy looking plot that shows the MDS axes and the variation:
-mds.values <- mds.stuff$points
+## trying to make fancy looking plot that shows the MDS axes and the variation:
+mds.values <- mds.stuff$points #spoiler: takes forever to load
 mds.data <- data.frame(Sample=rownames(mds.values),
                        X=mds.values[,1],
                        Y=mds.values[,2],
