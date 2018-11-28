@@ -1,35 +1,97 @@
+# GRADIENT BOOSTING
+
+# Setup --------------------------------------------------------------
+
+rm(list = ls())
+
+library(tidyverse)
+# install.packages("randomForest")
+library(randomForest)
+# install.packages("gbm")
+library(gbm)
+# install.packages("caret")
+library(caret)
+# install.packages("Ecdat")
+library(Ecdat)
+# install.packages('e1071', dependencies=TRUE)
+library(e1071)
+
+# Reading the previously saved version of our data
+load("../Roeser, Jonas - 2_Data/DF.RData")
+
+# Because of OneDrive we need to load from two different paths
+load("../2_Data/U.RData")
 
 
-require(gbm)
-require(MASS) #package with the boston housing dataset
+# Data Preparation ---------------------------------------------------
 
-#separating training and test data
-train=sample(1:506,size=374)
+# Create training and testing data 
+DF = as.data.frame(DF[76970:nrow(DF),])
 
-Boston.boost=gbm(medv ~ . ,data = Boston[train,],distribution = "gaussian",n.trees = 10000,
-                 shrinkage = 0.01, interaction.depth = 4)
-Boston.boost
+set.seed(502)
+ind = sample(2,nrow(DF), replace=T, prob=c(.7,.3))
+train = DF[ind==1,]
+test = DF[ind==2,]
 
-summary(Boston.boost) #Summary gives a table of Variable Importance and a plot of Variable Importance
+for (i in 1:11) {
+  train[,i] = factor(train[,i])
+}
 
-gbm(formula = medv ~ ., distribution = "gaussian", data = Boston[-train, 
-                                                                 ], n.trees = 10000, interaction.depth = 4, shrinkage = 0.01)
-A gradient boosted model with gaussian loss function.
-10000 iterations were performed.
-There were 13 predictors of which 13 had non-zero influence.
 
->summary(Boston.boost)
-var     rel.inf
-rm           rm 36.96963915
-lstat     lstat 24.40113288
-dis         dis 10.67520770
-crim       crim  8.61298346
-age         age  4.86776735
-black     black  4.23048222
-nox         nox  4.06930868
-ptratio ptratio  2.21423811
-tax         tax  1.73154882
-rad         rad  1.04400159
-indus     indus  0.80564216
-chas       chas  0.28507720
-zn           zn  0.09297068
+# Creating a grid
+
+# The grid allows us to create several different models with various parameter settings.
+
+grid = expand.grid(.n.trees=seq(200,500,by=200),.interaction.depth=seq(1,3,by=2),.shrinkage=seq(.01,.09,by=.04),
+                  .n.minobsinnode=seq(1,5,by=2)) #grid features
+control = trainControl(method="CV",number = 10) #control
+
+set.seed(123)
+
+# gbm(formula = formula(data), distribution = "bernoulli",
+#     data = list(), weights, var.monotone = NULL, n.trees = 100,
+#     interaction.depth = 1, n.minobsinnode = 10, shrinkage = 0.1,
+#     bag.fraction = 0.5, train.fraction = 1, cv.folds = 0,
+#     keep.data = TRUE, verbose = FALSE, class.stratify.cv = NULL,
+#     n.cores = NULL)
+
+gbm.train = train(Y~.,data=train, method="gbm",trControl=control, tuneGrid=grid)
+gbm.train
+
+# Model Training -----------------------------------------------------
+
+gbm.Y <-gbm(Y~.,
+            distribution = 'bernoulli',
+            data = train,
+            n.trees = 400,
+            interaction.depth = 3,
+            shrinkage = .09,
+            n.minobsinnode = 1)
+
+summary.gbm(gbm.Y)
+
+# Model Testing ----- 
+
+gbm.Y.test = predict(gbm.Y,
+                     newdata = test,
+                     type = 'response',
+                     n.trees = 400)
+
+# Our test model returns a set of probabilities
+# We need to convert this to a simple yes or no and this is done in the code below
+
+gbm.class = ifelse(gbm.Y.test<0.5,0,1)
+
+
+# We can now look at a table to see how accurate our model is as well as calculate the accuracy
+table(gbm.class,test$lfp)
+# Accuracy
+# (accuracy<-(x+y)/(x+y+...+...))
+
+
+
+
+
+
+
+
