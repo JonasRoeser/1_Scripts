@@ -32,21 +32,22 @@ colnames(D1) = c("rank_number_p0",
 
 # Adding form, h2h & condition_wins ---------------------------------------
 
-D1 = cbind(D1, form[,c(6,7)], h2h[,c(5:12)], condition_wins[,c(8,9)])
+D1 = cbind(D1, form[,c(6,7)], h2h[,c(11,12)], condition_wins[,c(8,9)])
 
 
 # Ordering D1 ---------------------------------------
 
 # Ordering and selecting relevant features
-D1 = D1[,c(1,2,6,8,11,14,16,3,4,7,9,12,15,17,10,13,5)]
+D1 = D1[,c(1,2,6,8,10,3,4,7,9,11,5)]
 
 # separate Y from df
 Y = D1$Y
 
+
 # Standardizing D1 ---------------------------------------
 
 # We dont want to standardize Y
-D1 = scale(D1[1:16])
+D1 = scale(D1[1:10])
 # --> maybe this needs to be done manually in order to be able to standardise the fornt-end input!
 
 # Binding D1 to Y
@@ -55,9 +56,9 @@ D1 = cbind(D1,Y)
 # Removing NAs ---------------------------------------
 
 D1 = D1[which(!is.na(D1[,3]) &
-                !is.na(D1[,7]) &
-                !is.na(D1[,10]) &
-                !is.na(D1[,14])),]
+                !is.na(D1[,5]) &
+                !is.na(D1[,8]) &
+                !is.na(D1[,10])),]
 
 
 # Saving -------------------------------------------------------------
