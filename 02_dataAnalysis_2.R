@@ -2,14 +2,14 @@
 
 
 # Setup-------------------------
-
+library(tidyverse)
 library(ggplot2)
 library(cowplot)
 library(randomForest)
 
 rm(list = ls())
 
-load("../Roeser, Jonas - 2_Data/U.RData")
+load("../Roeser, Jonas - 2_Data/DF.RData")
 load("../2_Data/U.RData")
 
 
@@ -19,32 +19,32 @@ set.seed(1)
 
 
 # Data Formatting
-U1 = U[c(5,7,9,11,12)]
+U1 = as.data.frame(DF[,c(1:4,7:11,14,17)])
 
-U1 = na.omit(U1)
+# U1 = na.omit(U1)
 
 
 # We cannot take the whole dataset because of computational restrictions (so we dont get 70 gb)
 train = U1[1:5000,] 
 test = U1[5001:10000,]
 
-train$Y.x = as.factor(train$Y.x)
-test$Y.x = as.factor(test$Y.x)
+train$Y = as.factor(train$Y)
+test$Y = as.factor(test$Y)
 
 # Building and Training Model ----------------------------------------
 
 # Finding the optimal number of variable at each internal nodes
-oob.values = vector(length=4)
+oob.values = vector(length=10)
 
-for(i in 1:4) {
-  temp.model = randomForest(Y.x ~ ., data=train, mtry=i, ntree=1000)
+for(i in 1:10) {
+  temp.model = randomForest(Y ~ ., data=train, mtry=i, ntree=1000)
   oob.values[i] = temp.model$err.rate[nrow(temp.model$err.rate),1]
 }
 oob.values
 # --> We can see that mtry=1 yields the lowest OOB error rate
 
 # Running the random forest with the built in function of the 
-model = randomForest(Y.x ~ ., data=train, mtry =1, ntree=1000, proximity=TRUE) 
+model = randomForest(Y ~ ., data=train, mtry =1, ntree=1000, proximity=TRUE) 
 # --> Looking at "model" we can see what the OOB error rate is .......
 
 # Plotting the error rate to see how many trees are necessary

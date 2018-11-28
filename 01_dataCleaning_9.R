@@ -37,15 +37,20 @@ D1 = cbind(D1, form[,c(6,7)], h2h[,c(5:12)], condition_wins[,c(8,9)])
 
 # Ordering D1 ---------------------------------------
 
+# Ordering and selecting relevant features
 D1 = D1[,c(1,2,6,8,11,14,16,3,4,7,9,12,15,17,10,13,5)]
 
+# separate Y from df
+Y = D1$Y
 
-# Standardising D1 ---------------------------------------
+# Standardizing D1 ---------------------------------------
 
-D1 = scale(D1)
-
+# We dont want to standardize Y
+D1 = scale(D1[1:16])
 # --> maybe this needs to be done manually in order to be able to standardise the fornt-end input!
 
+# Binding D1 to Y
+D1 = cbind(D1,Y)
 
 # Removing NAs ---------------------------------------
 

@@ -5,27 +5,23 @@ library(tidyverse)
 rm(list = ls())
 
 # Reading the previously saved version of our data
-load("../Roeser, Jonas - 2_Data/U.RData")
+load("../Roeser, Jonas - 2_Data/DF.RData")
 
 
 # Because of OneDrive we need to load from two different paths
 load("../2_Data/U.RData")
 
-U1 = U[c(5,7,9,11,12)]
-U1 = na.omit(U1)
-
-U1 = as.matrix(U1)
-# Ytrain = as.matrix(U1[1:(0.7*nrow(U1)), 5])
-
-
-
-
-# accuracy = 
-
+U1 = DF[,c(1:4,7:11,14,17)]
+# U1 = na.omit(U1)
+# U1 = as.matrix(U1)
 
 errors = matrix(0, 10, 6 )
-colnames(errors) = c("f_pos_train", "f_neg_train", "acc_train", "f_pos_test", "f_neg_test", "acc_test")
-
+colnames(errors) = c("f_pos_train", 
+                     "f_neg_train", 
+                     "acc_train", 
+                     "f_pos_test", 
+                     "f_neg_test", 
+                     "acc_test")
 
 set.seed(1)
 # Randomly shuffle the data
@@ -42,10 +38,10 @@ for(i in 1:10){
   trainData <- U1[-testIndexes, ]
   
   # Splitting X and Y
-  Xtrain = trainData[,c(1:4)]
-  Ytrain = trainData[,5]
-  Xtest = testData[,c(1:4)]
-  Ytest = testData[,5]
+  Xtrain = trainData[,c(1:10)]
+  Ytrain = trainData[,11]
+  Xtest = testData[,c(1:10)]
+  Ytest = testData[,11]
   
   # Binding X and Y
   data <- data.frame(Ytrain, Xtrain)
@@ -106,9 +102,9 @@ model_acc_log = t(colMeans(errors))
 
 # Plotting ----------------------------------------------------------------
 
-plot(Xtest[,1], Xtest[,2])
-points(Xtrain)
-x_line = seq(1, 2000)
-y_line = (-beta_logistic[1] - beta_logistic[2] * x_line) / beta_logistic[3]
-lines(x_line, y_line, col="blue", lwd=2)
+# plot(Xtest[,1], Xtest[,2])
+# points(Xtrain)
+# x_line = seq(1, 2000)
+# y_line = (-beta_logistic[1] - beta_logistic[2] * x_line) / beta_logistic[3]
+# lines(x_line, y_line, col="blue", lwd=2)
 
