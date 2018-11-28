@@ -52,20 +52,29 @@ for (i in 1:nrow(D)) {
   }
 }
 
-# gar nicht koscher
+# Try out different versions of head to head to minimate variance due preventing a math error...
+
+#
 D$h2h_v2_player0 = D$h2h_player0 + 1
 D$h2h_v2_player1 = D$h2h_player1 + 1
 D$h2h_v2 = D$h2h + 2
+
+#
 D$h2h_v2_player0 = D$h2h_v2_player0/D$h2h_v2
 D$h2h_v2_player1 = D$h2h_v2_player1/D$h2h_v2
+
+#
 D$h2h_v3_player0 = D$h2h_v2_player0/D$h2h_v2_player1
 D$h2h_v3_player1 = D$h2h_v2_player1/D$h2h_v2_player0
+
 for (i in 1:nrow(D)) {
   if (D[[i,7]] != 0) {
     D$h2h_player0[i] = D$h2h_player0[i]/D$h2h[i]
     D$h2h_player1[i] = D$h2h_player1[i]/D$h2h[i]
   }
 }
+# --> We tried out all three versions and had the best accuracy for version three
+#     so that we will take version three as a feature in our final data frame
 
 # Saving -------------------------------------------------------------
 
