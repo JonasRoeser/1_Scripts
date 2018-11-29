@@ -1,28 +1,31 @@
 # K-FOLD CROSS VALIDATION RANDOM FOREST WITH BAGGING
 
 library(tidyverse)
+library(dplyr)
 
 rm(list = ls())
 
 # Reading the previously saved version of our data
 load("../Roeser, Jonas - 2_Data/DF.RData")
+load("../Roeser, Jonas - 2_Data/DFs.RData")
 
 
 # Because of OneDrive we need to load from two different paths
 load("../2_Data/U.RData")
 
+set.seed(1)
+
+
 # Preperation ------------
 
-set.seed(3124)
 
 
 # Data Formatting
-DF = as.data.frame(DF[c(74001:77000),])
-
-# U1 = na.omit(U1)
-
 
 # We cannot take the whole dataset because of computational restrictions (so we dont get 70 gb)
+DF= sample_n(as.data.frame(DFs), 3000)
+
+#Creating the errors matrix
 errors = matrix(0, 10, 6 )
 colnames(errors) = c("f_pos_train", 
                      "f_neg_train", 
@@ -63,7 +66,7 @@ for(i in 1:10){
   #Calculating Training Errors ---------------------------------------------
 
   # Calculating the training eta
-  eta_RF_train = as.data.frame(predict(model,trainData, type="response",
+  eta_RF_train = as.data.frame(predict(model,type="response",
                                 norm.votes=TRUE, predict.all=FALSE, proximity=FALSE, nodes=FALSE))
 
 

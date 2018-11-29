@@ -1,4 +1,4 @@
-# RANDOM FORESTS WITH BAGGING
+# RANDOM FORESTS WITH BAGGING OPTIMIZATION
 
 
 # Setup-------------------------
@@ -35,38 +35,13 @@ testData$Y = as.factor(testData$Y)
 # Building and Training Model ----------------------------------------
 
 # Finding the optimal number of variable at each internal nodes
-oob.values = vector(length=10)
+oob_values = vector(length=10)
 
 for(i in 1:10) {
-  temp.model = randomForest(Y ~ ., data=train, mtry=i, ntree=1000)
-  oob.values[i] = temp.model$err.rate[nrow(temp.model$err.rate),1]
+  temp_model = randomForest(Y ~ ., data=trainData, mtry=i, ntree=500)
+  oob_values[i] = temp_model$err.rate[nrow(temp.model$err.rate),1]
 }
-oob.values
-# --> We can see that mtry=1 yields the lowest OOB error rate
-
-# Running the random forest with the built in function of the 
-model = randomForest(Y ~ ., data=trainData, mtry =1, ntree=500, proximity=TRUE) 
-
-# --> Looking at "model" we can see what the OOB error rate is .......
-
-# Plotting the error rate to see how many trees are necessary --------
-oob.error.data = data.frame(
-  Trees=rep(1:nrow(model$err.rate), times=3),
-  Type=rep(c("OOB", "1", "0"), each=nrow(model$err.rate)),
-  Error=c(model$err.rate[,"OOB"],
-          model$err.rate[,"1"],
-          model$err.rate[,"0"]))
-
-ggplot(data=oob.error.data, aes(x=Trees, y=Error)) +
-  geom_line(aes(color=Type))
-# --> We can see that in this particular case the Error rate is ...... -----------
-
-# Getting probabilities predictions ----------------------------------
-
-prob_RF_train = as.matrix(predict(model, trainData, type="prob"))
-
-prob_RF_test = as.matrix(predict(model, testData, type="prob",
-                                  norm.votes=TRUE, predict.all=FALSE, proximity=FALSE, nodes=FALSE))
+oob_values
 
 Ytrain =as.numeric(as.matrix(trainData$Y))
 Ytest = as.numeric(as.matrix(testData$Y))
@@ -95,6 +70,37 @@ Ytest = as.numeric(as.matrix(testData$Y))
 #   ggtitle("MDS plot using (1 - Random Forest Proximities)")
 
 
+
+# --> We can see that mtry=1 yields the lowest OOB error rate
+
+# Running the random forest with the built in function of the 
+model = randomForest(Y ~ ., data=trainData, mtry =1, ntree=500, proximity=TRUE) 
+
+# --> Looking at "model" we can see what the OOB error rate is .......
+
+# Plotting the error rate to see how many trees are necessary --------
+oob.error.data = data.frame(
+  Trees=rep(1:nrow(model$err.rate), times=3),
+  Type=rep(c("OOB", "1", "0"), each=nrow(model$err.rate)),
+  Error=c(model$err.rate[,"OOB"],
+          model$err.rate[,"1"],
+          model$err.rate[,"0"]))
+
+ggplot(data=oob.error.data, aes(x=Trees, y=Error)) +
+  geom_line(aes(color=Type))
+# --> We can see that in this particular case the Error rate is ...... -----------
+
+# Getting probabilities predictions ----------------------------------
+
+prob_RF_train = as.matrix(predict(model, trainData, type="prob"))
+
+prob_RF_test = as.matrix(predict(model, testData, type="prob",
+                                  norm.votes=TRUE, predict.all=FALSE, proximity=FALSE, nodes=FALSE))
+
+varImpPlot(model, scale=F)
+
+
+# For plotting
 # Plotting ROC ----------
 install.packages("pROC")
 library(pROC)
