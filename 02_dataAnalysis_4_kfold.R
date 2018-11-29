@@ -14,6 +14,7 @@ load("../2_Data/DF.RData")
 # U1 = na.omit(U1)
 # U1 = as.matrix(U1)
 
+
 kfold_logit = function(comb) {
   U1 = DF[,c(comb,11)]
   
@@ -49,7 +50,7 @@ kfold_logit = function(comb) {
     data <- data.frame(Ytrain, Xtrain)
     
     # Applying logistic regresion
-    model <- glm(Ytrain ~ ., data, family=binomial(link='logit'))
+    model <<- glm(Ytrain ~ ., data, family=binomial(link='logit'))
     
     # Extracting the betas
     beta_logistic  = model$coefficients
@@ -104,7 +105,7 @@ kfold_logit = function(comb) {
     
   }
   
-  return(model_acc_log = t(colMeans(errors))) 
+  return(model_acc_log = t(colMeans(errors)))
 }
 
 feature_combinations = matrix(nrow = 31, ncol = 7)
@@ -141,6 +142,8 @@ feature_combinations$combination = gsub("8", "", feature_combinations$combinatio
 feature_combinations$combination = gsub("9", "", feature_combinations$combination)
 feature_combinations$combination = gsub(",", "", feature_combinations$combination)
 feature_combinations$combination = gsub(" ", ", ", feature_combinations$combination)
+
+kfold_logit(c(1,2,3,4,5,6,7,8,9,10))
 
 # write.csv(feature_combinations, file = "../Roeser, Jonas - 2_Data/feature_combinations.csv")
 
