@@ -4,6 +4,7 @@
 # Setup-------------------------
 library(tidyverse)
 library(ggplot2)
+
 library(cowplot)
 library(randomForest)
 
@@ -19,17 +20,17 @@ set.seed(1)
 
 
 # Data Formatting
-U1 = as.data.frame(DF[,c(1:4,7:11,14,17)])
+DF = as.data.frame(DF)
 
 # U1 = na.omit(U1)
 
 
 # We cannot take the whole dataset because of computational restrictions (so we dont get 70 gb)
-train = U1[1:5000,] 
-test = U1[5001:10000,]
+trainData = DF[1:5000,] 
+testData = DF[5001:10000,]
 
-train$Y = as.factor(train$Y)
-test$Y = as.factor(test$Y)
+trainData$Y = as.factor(trainData$Y)
+testData$Y = as.factor(testData$Y)
 
 # Building and Training Model ----------------------------------------
 
@@ -44,10 +45,11 @@ oob.values
 # --> We can see that mtry=1 yields the lowest OOB error rate
 
 # Running the random forest with the built in function of the 
-model = randomForest(Y ~ ., data=train, mtry =1, ntree=1000, proximity=TRUE) 
+model = randomForest(Y ~ ., data=trainData, mtry =1, ntree=500, proximity=TRUE) 
+
 # --> Looking at "model" we can see what the OOB error rate is .......
 
-# Plotting the error rate to see how many trees are necessary
+# Plotting the error rate to see how many trees are necessary --------
 oob.error.data = data.frame(
   Trees=rep(1:nrow(model$err.rate), times=3),
   Type=rep(c("OOB", "1", "0"), each=nrow(model$err.rate)),
@@ -57,31 +59,55 @@ oob.error.data = data.frame(
 
 ggplot(data=oob.error.data, aes(x=Trees, y=Error)) +
   geom_line(aes(color=Type))
-# --> We can see that in this particular case the Error rate is ......
+# --> We can see that in this particular case the Error rate is ...... -----------
 
 # Getting probabilities predictions ----------------------------------
-predictions = as.data.frame(predict(model, train, type = "prob"))
+
+prob_RF_train = as.matrix(predict(model, trainData, type="prob"))
+
+prob_RF_test = as.matrix(predict(model, testData, type="prob",
+                                  norm.votes=TRUE, predict.all=FALSE, proximity=FALSE, nodes=FALSE))
+
+Ytrain =as.numeric(as.matrix(trainData$Y))
+Ytest = as.numeric(as.matrix(testData$Y))
+
+# # More plotting shizzel that I do not understand -------------
+# # converting the proximity matrix into a distance matrix.
+# distance.matrix <- dist(1-model$proximity)
+# 
+# mds.stuff <- cmdscale(distance.matrix, eig=TRUE, x.ret=TRUE)
+# 
+# #the percentage of variation that each MDS axis accounts for...
+# mds.var.per <- round(mds.stuff$eig/sum(mds.stuff$eig)*100, 1)
+# 
+# ## trying to make fancy looking plot that shows the MDS axes and the variation:
+# mds.values <- mds.stuff$points #spoiler: takes forever to load
+# mds.data <- data.frame(Sample=rownames(mds.values),
+#                        X=mds.values[,1],
+#                        Y=mds.values[,2],
+#                        Status=test$hd)
+# 
+# ggplot(data=mds.data, aes(x=X, y=Y, label=Sample)) +
+#   geom_text(aes(color=Status)) +
+#   theme_bw() +
+#   xlab(paste("MDS1 - ", mds.var.per[1], "%", sep="")) +
+#   ylab(paste("MDS2 - ", mds.var.per[2], "%", sep="")) +
+#   ggtitle("MDS plot using (1 - Random Forest Proximities)")
 
 
-# More plotting shizzel that I do not understand -------------
-# converting the proximity matrix into a distance matrix.
-distance.matrix <- dist(1-model$proximity)
+# Plotting ROC ----------
+install.packages("pROC")
+library(pROC)
 
-mds.stuff <- cmdscale(distance.matrix, eig=TRUE, x.ret=TRUE)
 
-#the percentage of variation that each MDS axis accounts for...
-mds.var.per <- round(mds.stuff$eig/sum(mds.stuff$eig)*100, 1)
 
-## trying to make fancy looking plot that shows the MDS axes and the variation:
-mds.values <- mds.stuff$points #spoiler: takes forever to load
-mds.data <- data.frame(Sample=rownames(mds.values),
-                       X=mds.values[,1],
-                       Y=mds.values[,2],
-                       Status=test$hd)
+roc_train = roc(Ytrain ~ prob_RF_train[,2],
+                auc = T)
+plot(roc_train)
 
-ggplot(data=mds.data, aes(x=X, y=Y, label=Sample)) +
-  geom_text(aes(color=Status)) +
-  theme_bw() +
-  xlab(paste("MDS1 - ", mds.var.per[1], "%", sep="")) +
-  ylab(paste("MDS2 - ", mds.var.per[2], "%", sep="")) +
-  ggtitle("MDS plot using (1 - Random Forest Proximities)")
+
+roc_test = roc(Ytest ~ prob_RF_test[,2],
+               auc = T)
+plot(roc_test)
+
+
