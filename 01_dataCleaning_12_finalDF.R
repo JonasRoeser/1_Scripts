@@ -11,14 +11,22 @@ load("../Roeser, Jonas - 2_Data/D1.RData")
 load("../Roeser, Jonas - 2_Data/form.RData")
 load("../Roeser, Jonas - 2_Data/condition_wins.RData")
 load("../Roeser, Jonas - 2_Data/h2h.RData")
+load("../Roeser, Jonas - 2_Data/fatigue.RData")
+load("../Roeser, Jonas - 2_Data/homeGame.RData")
+load("../Roeser, Jonas - 2_Data/playerProp.RData")
 
 # Because of OneDrive we need to load from two different paths
 load("../2_Data/D1.RData")
 load("../2_Data/form.RData")
 load("../2_Data/condition_wins.RData")
 load("../2_Data/h2h.RData")
+load("../2_Data/fatigue.RData")
+load("../2_Data/homeGame.RData")
+load("../2_Data/playerProp.RData")
 
 set.seed(1)
+
+
 # Selecting & renaming columns of D1 --------------------------------------------------------------
 
 D1 = D1[,c(27,59,45,60,56)]
@@ -30,27 +38,26 @@ colnames(D1) = c("rank_number_p0",
                  "Y")
 
 
-# Adding form, h2h & condition_wins ---------------------------------------
+# Adding form, h2h, fatigue, homeGame & condition_wins ---------------
 
-D1 = cbind(D1, form[,c(6,7)], h2h[,c(11,12)], condition_wins[,c(8,9)])
+D1 = cbind(D1, form[,c(6:11)], h2h[,c(11,12)], condition_wins[,c(8,9)], fatigue[,c(7,8)], homeGame[,c(5,6)], playerProp[2:5])
+
+# Creating rank difference from rank_player_0 and rank_player_1
+D1 = D1 %>%
+  mutate(diff_rank = D1$rank_number_p0 - D1$rank_number_p1) %>%
+  mutate(diff_form_10 = D1$form_10_player0 - D1$form_10_player1) %>%
+  mutate(diff_form_5 = D1$form_5_player0 - D1$form_5_player1) %>%
+  mutate(diff_form_1 = D1$form_1_player0 - D1$form_1_player1)
 
 
-# Ordering D1 ---------------------------------------
+# Selecting Columns and ordering D1 ----------------------------------
 
 # Ordering and selecting relevant features
-D1 = D1[,c(1,2,6,8,10,3,4,7,9,11,5)]
+D1 = D1[,c(12:27,2,4,5)]
 
 # separate Y from df
 Y = D1$Y
 
-# Creating DF with difference features(totally original idea!!!)
-# D1 = D1 %>%
-#   mutate(diff_rk = D1$rank_number_p0 - D1$rank_number_p1) %>%
-#   mutate(diff_form = D1$form_player0 - D1$form_player1) %>%
-#   mutate(diff_h2h = D1$h2h_v3_player0) %>%
-#   mutate(diff_c_wins = D1$condition_wins_player0 - D1$condition_wins_player1)
-# 
-# D1 = D1[,c(12:15)]
 
 
 # Standardizing D1 ---------------------------------------
@@ -65,18 +72,14 @@ D1 = cbind(D1,Y)
 
 # Removing NAs ---------------------------------------
 
-D1 = D1[which(!is.na(D1[,3]) &
-                !is.na(D1[,5]) &
-                !is.na(D1[,8]) &
-                !is.na(D1[,10])),]
+D1 = D1[complete.cases(D1),]
 
 
 # Creating a DF and a shuffled version of DF --------------------
 DF = D1
-DFs = sample_n(as.data.frame(D1),nrow(D1))
+DF = sample_n(as.data.frame(D1),nrow(D1))
 
 # Saving -------------------------------------------------------------
 
 
 # save(DF, file = "../Roeser, Jonas - 2_Data/DF.RData")
-# save(DFs, file = "../Roeser, Jonas - 2_Data/DFs.RData")
