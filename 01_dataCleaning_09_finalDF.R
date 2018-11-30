@@ -43,15 +43,25 @@ D1 = D1[,c(1,2,6,8,10,3,4,7,9,11,5)]
 # separate Y from df
 Y = D1$Y
 
+# Creating DF with difference features(totally original idea!!!)
+# D1 = D1 %>%
+#   mutate(diff_rk = D1$rank_number_p0 - D1$rank_number_p1) %>%
+#   mutate(diff_form = D1$form_player0 - D1$form_player1) %>%
+#   mutate(diff_h2h = D1$h2h_v3_player0) %>%
+#   mutate(diff_c_wins = D1$condition_wins_player0 - D1$condition_wins_player1)
+# 
+# D1 = D1[,c(12:15)]
+
 
 # Standardizing D1 ---------------------------------------
 
 # We dont want to standardize Y
-D1 = scale(D1[1:10])
+D1 = scale(D1[1:(ncol(D1)-1)])
 # --> maybe this needs to be done manually in order to be able to standardise the fornt-end input!
 
 # Binding D1 to Y
 D1 = cbind(D1,Y)
+
 
 # Removing NAs ---------------------------------------
 
@@ -59,6 +69,7 @@ D1 = D1[which(!is.na(D1[,3]) &
                 !is.na(D1[,5]) &
                 !is.na(D1[,8]) &
                 !is.na(D1[,10])),]
+
 
 # Creating a DF and a shuffled version of DF --------------------
 DF = D1
