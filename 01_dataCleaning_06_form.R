@@ -14,12 +14,12 @@ load("../2_Data/D1.RData")
 
 # Creating form feature for last 10 games ---------------------------------------------------
 
-D1 = D1[c(5000:6000),c(58,2,20,38,56)] %>%
+D1 = D1[c(58,2,20,38,56)] %>%
   mutate(form_10_player0 = NA) %>%
   mutate(form_10_player1 = NA)
 
 for (i in 1:nrow(D1)) {
-  # Calculating Form for player0
+  # Calculating form for player0
   matches0 = which(as.character(D1$player0) == as.character(D1$player0[i]))
   matches1 = which(as.character(D1$player1) == as.character(D1$player0[i]))
   matches_smaller_i_indeces0 = which(matches0<i)
@@ -77,14 +77,14 @@ for (i in 1:nrow(D1)) {
 }
 
 
-# Creating form feature for last 10 games ---------------------------------------------------
+# Creating form feature for last 5 games ---------------------------------------------------
 
 D1 = D1 %>%
   mutate(form_5_player0 = NA) %>%
   mutate(form_5_player1 = NA)
 
 for (i in 1:nrow(D1)) {
-  # Calculating Form for player0
+  # Calculating form for player0
   matches0 = which(as.character(D1$player0) == as.character(D1$player0[i]))
   matches1 = which(as.character(D1$player1) == as.character(D1$player0[i]))
   matches_smaller_i_indeces0 = which(matches0<i)
@@ -142,14 +142,14 @@ for (i in 1:nrow(D1)) {
 }
 
 
-# Creating form feature for last 10 games ---------------------------------------------------
+# Creating form feature for last game ---------------------------------------------------
 
 D1 = D1 %>%
   mutate(form_1_player0 = NA) %>%
   mutate(form_1_player1 = NA)
 
 for (i in 1:nrow(D1)) {
-  # Calculating Form for player0
+  # Calculating form for player0
   matches0 = which(as.character(D1$player0) == as.character(D1$player0[i]))
   matches1 = which(as.character(D1$player1) == as.character(D1$player0[i]))
   matches_smaller_i_indeces0 = which(matches0<i)
@@ -216,4 +216,4 @@ D1 = D1 %>%
 # Saving -------------------------------------------------------------
 
 form = D1
-save(form, file = "../Roeser, Jonas - 2_Data/form.RData")
+# save(form, file = "../Roeser, Jonas - 2_Data/form.RData")
