@@ -31,5 +31,28 @@ D1.prop = D1.prop[c(1,6,7)]
 
 # Ceating Feature: Titel ---------------------------------------------
 
-# Gewonnene Titel bis zum Zeitpunkt des Spiels
-# 
+D1 = D1[c(58,2,3,19,20,38,57,14)] %>%
+  mutate(titles_player0 = 0) %>%
+  mutate(titles_player1 = 0)
+
+for (i in 1:nrow(D1)) {
+  D1winners = D1[which(D1$reversed_round_order == 10),c(3,8)]
+  
+  titles = as.double(rownames(D1winners[which(as.character(D1winners$singles_winner_player_id) == as.character(D1$player0[i])),]))
+  titles_smaller_i_indeces = which(titles<i)
+  titles_smaller_i = titles[titles_smaller_i_indeces]
+  
+  D1$titles_player0[i] = length(titles_smaller_i)
+  
+
+  titles = as.double(rownames(D1winners[which(as.character(D1winners$singles_winner_player_id) == as.character(D1$player1[i])),]))
+  titles_smaller_i_indeces = which(titles<i)
+  titles_smaller_i = titles[titles_smaller_i_indeces]
+  
+  D1$titles_player1[i] = length(titles_smaller_i)
+}
+
+# Saving -------------------------------------------------------------
+
+playerProp = cbind(D1.prop, D1[,c(9,10)])
+# save(playerProp, file = "../Roeser, Jonas - 2_Data/playerProp.RData")
