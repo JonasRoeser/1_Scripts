@@ -1,14 +1,5 @@
-# CREATE FEATURE FATIGUE
 
-# Concept ------------------------------------------------------------
-
-# Tourney_year_id der letzten Spiele muss gleich der Tourney_year_id des betrachteten Spiel sein
-# Sonst: Wert 0
-# Minuten des letzten Spiels --> x
-# Minuten des vorletzten Spiels --> y
-#
-# Fatigue = x + y/3
-
+# CREATE FATIGUE FEATURE FOR D
 
 # Setup --------------------------------------------------------------
 
@@ -96,5 +87,6 @@ for (i in 1:nrow(D1)) {
 
 # Saving -------------------------------------------------------------
 
+# Saving "D1" as "fatigue.RData"
 fatigue = D1
 # save(fatigue, file = "../Roeser, Jonas - 2_Data/fatigue.RData")

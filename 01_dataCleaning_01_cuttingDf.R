@@ -1,3 +1,4 @@
+
 # CUTTING ALL DATASETS TO REQUIRED LENGTH
 
 # Setup --------------------------------------------------------------
@@ -35,6 +36,7 @@ min(rankings$week_year)
 # Check if complete
 nrow(is.na(rankings$week_year))
 
+
 # Cut tournaments1877_2017 -------------------------------------------
 
 typeof(tournaments1877_2017$tourney_year)
@@ -44,6 +46,7 @@ tournaments <- tournaments1877_2017 %>%
 min(tournaments$tourney_year)
 # Check if complete
 nrow(is.na(tournaments$tourney_year))
+
 
 # Stats Check --------------------------------------------------------
 
@@ -57,6 +60,7 @@ sapply(matchStats1991_2016, typeof) == sapply(matchStats2017, typeof)   # All tr
 # Combining matchStats
 matchStats = rbind(matchStats1991_2016, matchStats2017)
 
+
 # Scores Check -------------------------------------------------------
 
 # Checking if colnames of matchScores match
@@ -69,6 +73,7 @@ sapply(matchScores1991_2016, typeof) == sapply(matchScores2017, typeof) # All tr
 # Combining matchScores
 matchScores = rbind(matchScores1991_2016, matchScores2017)
 
+
 # Removing other datasets --------------------------------------------
 rm(matchStats1991_2016, 
    matchStats2017, 
@@ -77,7 +82,8 @@ rm(matchStats1991_2016,
    rankings1973_2017,
    tournaments1877_2017)
 
+
 # Saving -------------------------------------------------------------
 
-# Save all remaining datasets in an image
+# Save all remaining datasets as "data1991_2017.RData"
 # save.image(file="../Roeser, Jonas - 2_Data/data1991_2017.RData")

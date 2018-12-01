@@ -1,5 +1,7 @@
 
-# CREATING FORM FEATURE FOR D
+# CREATING HOMEGAME FEATURE FOR D
+
+# Setup --------------------------------------------------------------
 
 library(tidyverse)
 
@@ -240,5 +242,6 @@ D1$home_game_p1[which(D1$tourney_location == D1$flag_code.y)] = 1
 
 # Saving -------------------------------------------------------------
 
+# Saving "D1" as "homeGame.RData"
 homeGame = D1
 # save(homeGame, file = "../Roeser, Jonas - 2_Data/homeGame.RData")

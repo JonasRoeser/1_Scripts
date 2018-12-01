@@ -1,3 +1,4 @@
+
 # ADDING FORM, H2H & CONDITION_WINS TO D; FINALIZING D
 
 # Setup --------------------------------------------------------------
@@ -40,7 +41,7 @@ colnames(D1) = c("rank_number_p0",
 
 # Adding form, h2h, fatigue, homeGame & condition_wins ---------------
 
-D1 = cbind(D1, form[,c(6:11)], h2h[,c(11,12)], condition_wins[,c(8,9)], fatigue[,c(7,8)], homeGame[,c(5,6)], playerProp[2:5])
+D1 = cbind(D1, form[,c(6:11)], h2h[,c(11,12)], condition_wins[,c(8,9)], fatigue[,c(7,8)], homeGame[,c(5,6)], playerProp[,c(2:4)])
 
 # Creating rank difference from rank_player_0 and rank_player_1
 D1 = D1 %>%
@@ -53,11 +54,11 @@ D1 = D1 %>%
 # Selecting Columns and ordering D1 ----------------------------------
 
 # Ordering and selecting relevant features
-D1 = D1[,c(12:27,2,4,5)]
+D1 = D1[,c(12:26,2,4,5)]
+colnames(D1)[11] = "title_diff"
 
 # separate Y from df
 Y = D1$Y
-
 
 
 # Standardizing D1 ---------------------------------------
@@ -79,7 +80,8 @@ D1 = D1[complete.cases(D1),]
 DF = D1
 DF = sample_n(as.data.frame(D1),nrow(D1))
 
+
 # Saving -------------------------------------------------------------
 
-
+# Saving "DF" as "DF.RData"
 # save(DF, file = "../Roeser, Jonas - 2_Data/DF.RData")
