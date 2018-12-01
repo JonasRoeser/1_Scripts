@@ -1,7 +1,8 @@
+
 # RANDOM FORESTS WITH BAGGING OPTIMIZATION
 
-
 # Setup-------------------------
+
 library(tidyverse)
 library(ggplot2)
 
@@ -11,26 +12,20 @@ library(randomForest)
 rm(list = ls())
 
 load("../Roeser, Jonas - 2_Data/DF.RData")
-load("../2_Data/U.RData")
+load("../2_Data/DF.RData")
 
 
 # Preperation ------------
 
 set.seed(1)
 
-
 # Data Formatting
 DF = as.data.frame(DF)
 
-# U1 = na.omit(U1)
-
-
 # We cannot take the whole dataset because of computational restrictions (so we dont get 70 gb)
-trainData = DF[1:5000,] 
-testData = DF[5001:10000,]
+trainData = DF[1:(0.3*nrow(DF)),]
 
 trainData$Y = as.factor(trainData$Y)
-testData$Y = as.factor(testData$Y)
 
 # Building and Training Model ----------------------------------------
 
@@ -44,7 +39,6 @@ for(i in 1:10) {
 oob_values
 
 Ytrain = as.numeric(as.matrix(trainData$Y))
-Ytest = as.numeric(as.matrix(testData$Y))
 
 # # More plotting shizzel that I do not understand -------------
 # # converting the proximity matrix into a distance matrix.
@@ -72,9 +66,9 @@ Ytest = as.numeric(as.matrix(testData$Y))
 
 
 # --> We can see that mtry=1 yields the lowest OOB error rate
-
+# memory.limit(45000)
 # Running the random forest with the built in function of the 
-model = randomForest(Y ~ ., data=trainData, mtry =6, ntree=500, proximity=TRUE) 
+model = randomForest(Y ~ ., data=trainData, mtry =6, ntree=500, proximity=TRUE)
 
 # --> Looking at "model" we can see what the OOB error rate is .......
 
