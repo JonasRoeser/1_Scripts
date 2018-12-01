@@ -1,5 +1,3 @@
-# K-FOLD CROSS VALIDATION LOGISTIC REGRESSION
-
 library(tidyverse)
 
 rm(list = ls())
@@ -14,9 +12,9 @@ load("../2_Data/DF.RData")
 # U1 = na.omit(U1)
 # U1 = as.matrix(U1)
 
+comb = seq(1:(ncol(DF)-1))
 
-kfold_logit = function(comb) {
-  U1 = DF[,c(comb,11)]
+  U1 = DF[,c(comb,ncol(DF))]
   
   errors = matrix(0, 10, 6 )
   colnames(errors) = c("f_pos_train", 
@@ -105,75 +103,4 @@ kfold_logit = function(comb) {
     
   }
   
-  return(model_acc_log = t(colMeans(errors)))
-}
-
-feature_combinations = matrix(nrow = 31, ncol = 7)
-
-# This for loop takes quite some time to finish
-# k = 1
-# for(i in 1:5) {
-#   combinations = rbind(combn(1:5, i, FUN = NULL, simplify = TRUE), combn(1:5, i, FUN = NULL, simplify = TRUE)+5)
-#   for(j in 1:ncol(combinations)) {
-#     feature_combinations[k, 1] = paste(combinations[,j], collapse=",")
-#     feature_combinations[k, 2:7] = kfold_logit(combinations[,j])
-#     k = k + 1
-#   }
-# }
-
-feature_combinations = data.frame(feature_combinations)
-colnames(feature_combinations) = c("combination","
-                                   f_pos_train",
-                                   "f_neg_train",
-                                   "acc_train",
-                                   "f_pos_test",
-                                   "f_neg_test" ,
-                                   "acc_test")
-
-feature_combinations$combination = gsub("10", "", feature_combinations$combination)
-feature_combinations$combination = gsub("1", " rank", feature_combinations$combination)
-feature_combinations$combination = gsub("2", " rank move", feature_combinations$combination)
-feature_combinations$combination = gsub("3", " form", feature_combinations$combination)
-feature_combinations$combination = gsub("4", " h2h", feature_combinations$combination)
-feature_combinations$combination = gsub("5", " win condition", feature_combinations$combination)
-feature_combinations$combination = gsub("6", "", feature_combinations$combination)
-feature_combinations$combination = gsub("7", "", feature_combinations$combination)
-feature_combinations$combination = gsub("8", "", feature_combinations$combination)
-feature_combinations$combination = gsub("9", "", feature_combinations$combination)
-feature_combinations$combination = gsub(",", "", feature_combinations$combination)
-feature_combinations$combination = gsub(" ", ", ", feature_combinations$combination)
-
-kfold_logit(c(1,2,3,4,5,6,7,8,9,10))
-
-# write.csv(feature_combinations, file = "../Roeser, Jonas - 2_Data/feature_combinations.csv")
-
-# significance of features
-# install.packages("caret")
-library(caret)
-
-summary(model)
-
-varImp(model, scale = FALSE)
-
-prob = predict(model,type=c("response"))
-
-
-# Plotting ----------------------------------------------------------------
-
-# plot(Xtest[,1], Xtest[,2])
-# points(Xtrain)
-# x_line = seq(1, 2000)
-# y_line = (-beta_logistic[1] - beta_logistic[2] * x_line) / beta_logistic[3]
-# lines(x_line, y_line, col="blue", lwd=2)
-
-
-
-# plotting ROC
-# install.packages("pROC")
-library(pROC)
-roc_train = roc(Ytrain ~ prob_log_train,
-                 auc = T)
-plot(roc_train)
-roc_test = roc(Ytest ~ prob_log_test,
-                auc = T)
-plot(roc_test)
+  model_acc_log = t(colMeans(errors))

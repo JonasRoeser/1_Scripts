@@ -1,3 +1,4 @@
+
 # MERGE MATCHES_W_RKNS WITH ALL REMAINING DATASETS, DROPPING COLUMNS, ORDERING ROWS
 
 # Setup --------------------------------------------------------------
@@ -40,13 +41,11 @@ D = merge(D, tournaments, by = "tourney_year_id")
 D = merge(D, matchStats, by = "match_id")
 
 
-
 # Dropping columns --------------------------------------------------------
 
 # Omitting all redundant colums (e.g website links) and resorting
 # all match stats dropped except match duration ( match stats would be colnr(61,62,64:73, 102:148))
 D = D[c(5,1,2,70,71,74,75,79,81:83,85,87,88,58:60,63,100,4,20:22,24:26,6:11,31,33,36:38,3,39:41,43:45,12:17,50,52,55:57,18)]
-
 
 
 # Building sequencer ------------------------------------------------------
@@ -84,7 +83,6 @@ rownames(D) = 1:nrow(D)
 
 # Saving -------------------------------------------------------------
 
-# Saving "D0" as D0.RData
+# Saving "D0" as "D0.RData"
 D0 = D
 # save(D0, file = "../Roeser, Jonas - 2_Data/D0.RData")
-save(D0, file = "../2_Data/D0.RData")

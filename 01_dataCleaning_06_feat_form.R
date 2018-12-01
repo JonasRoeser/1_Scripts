@@ -1,6 +1,8 @@
 
 # CREATING FORM FEATURE FOR D
 
+# Setup --------------------------------------------------------------
+
 library(tidyverse)
 
 rm(list = ls())
@@ -206,6 +208,7 @@ for (i in 1:nrow(D1)) {
   }
 }
 
+
 # Creating combined weighted form of last 10 games ---------------------------------------------------
 
 D1 = D1 %>%
@@ -215,5 +218,6 @@ D1 = D1 %>%
 
 # Saving -------------------------------------------------------------
 
+# Saving "D1" as "form.RData"
 form = D1
 # save(form, file = "../Roeser, Jonas - 2_Data/form.RData")

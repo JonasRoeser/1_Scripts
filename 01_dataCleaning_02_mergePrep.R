@@ -1,3 +1,4 @@
+
 # PREPARING THE MERGER OF MATCHES & RANKINGS DATA
 
 # Setup --------------------------------------------------------------
@@ -30,6 +31,7 @@ matches = subset(matchScores, select = c(tourney_year_id,
                                     match_id,
                                     winner_player_id,
                                     loser_player_id))
+
 
 # Merging matchScores & rankings ------------------------------------------
 
@@ -93,6 +95,6 @@ matches$loser_column= NA
 
 # Saving -------------------------------------------------------------
 
-# Saving "rankings" and "matches" to rankings.RData and matches.RData
+# Saving "rankings" and "matches" as "rankings.RData" and "matches.RData"
 # save(matches, file = "../Roeser, Jonas - 2_Data/matches.RData")
 # save(rankings, file = "../Roeser, Jonas - 2_Data/rankings.RData")

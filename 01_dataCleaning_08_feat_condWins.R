@@ -1,6 +1,8 @@
 
 # CREATING WINS ON PLAYING CONDITIONS FEATURE
 
+# Setup --------------------------------------------------------------
+
 library(tidyverse)
 
 rm(list = ls())
@@ -79,6 +81,6 @@ for (i in 1:nrow(D1)) {
 
 # Saving -------------------------------------------------------------
 
-# Saving "D3" as D3.RData
+# Saving "D3" as "D3.RData"
 condition_wins = D1
 # save(condition_wins, file = "../Roeser, Jonas - 2_Data/condition_wins.RData")
