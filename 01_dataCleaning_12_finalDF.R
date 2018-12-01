@@ -41,21 +41,26 @@ colnames(D1) = c("rank_number_p0",
 
 # Adding form, h2h, fatigue, homeGame & condition_wins ---------------
 
-D1 = cbind(D1, form[,c(6:11)], h2h[,c(11,12)], condition_wins[,c(8,9)], fatigue[,c(7,8)], homeGame[,c(5,6)], playerProp[,c(2:4)])
+D1 = cbind(D1, form[,c(6:13)], h2h[,c(11,12)], condition_wins[,c(8,9)], fatigue[,c(7,8)], homeGame[,c(5,6)], playerProp[,c(2:4)])
 
 # Creating rank difference from rank_player_0 and rank_player_1
 D1 = D1 %>%
   mutate(diff_rank = D1$rank_number_p0 - D1$rank_number_p1) %>%
   mutate(diff_form_10 = D1$form_10_player0 - D1$form_10_player1) %>%
   mutate(diff_form_5 = D1$form_5_player0 - D1$form_5_player1) %>%
-  mutate(diff_form_1 = D1$form_1_player0 - D1$form_1_player1)
+  mutate(diff_form_1 = D1$form_1_player0 - D1$form_1_player1) %>%
+  mutate(diff_form_weighted = D1$form_weighted_player0 - D1$form_weighted_player1) %>%
+  mutate(h2h = h2h_v3_player0) %>%
+  mutate(diff_conditions_wins = D1$condition_wins_player0 - D1$condition_wins_player1) %>%
+  mutate(fatigue_diff = D1$fatigue_player0 - D1$fatigue_player1) %>%
+  mutate(home_game_diff = D1$home_game_p0 - D1$home_game_p1)
 
 
 # Selecting Columns and ordering D1 ----------------------------------
 
 # Ordering and selecting relevant features
-D1 = D1[,c(12:26,2,4,5)]
-colnames(D1)[11] = "title_diff"
+D1 = D1[,c(22:25,29:33,5)]
+colnames(D1)[3] = "title_diff"
 
 # separate Y from df
 Y = D1$Y
