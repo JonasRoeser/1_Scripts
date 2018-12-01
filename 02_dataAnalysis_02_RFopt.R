@@ -39,11 +39,11 @@ oob_values = vector(length=10)
 
 for(i in 1:10) {
   temp_model = randomForest(Y ~ ., data=trainData, mtry=i, ntree=500)
-  oob_values[i] = temp_model$err.rate[nrow(temp.model$err.rate),1]
+  oob_values[i] = temp_model$err.rate[nrow(temp_model$err.rate),1]
 }
 oob_values
 
-Ytrain =as.numeric(as.matrix(trainData$Y))
+Ytrain = as.numeric(as.matrix(trainData$Y))
 Ytest = as.numeric(as.matrix(testData$Y))
 
 # # More plotting shizzel that I do not understand -------------
@@ -74,7 +74,7 @@ Ytest = as.numeric(as.matrix(testData$Y))
 # --> We can see that mtry=1 yields the lowest OOB error rate
 
 # Running the random forest with the built in function of the 
-model = randomForest(Y ~ ., data=trainData, mtry =1, ntree=500, proximity=TRUE) 
+model = randomForest(Y ~ ., data=trainData, mtry =6, ntree=500, proximity=TRUE) 
 
 # --> Looking at "model" we can see what the OOB error rate is .......
 
