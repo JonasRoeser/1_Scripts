@@ -25,7 +25,7 @@ DFkfold = DF[-(1:(0.3*nrow(DF))),]
 
 # Optimisation ------------------------------------------------------------
 
-# Pre-optimising hyperparamters with all features -------------------------
+# Pre-optimising hyperparameters with all features -------------------------
 
 # Creating function that takes feature combination vector as input
 logistic = function(comb) {
@@ -38,10 +38,10 @@ logistic = function(comb) {
   Ytest <<- as.matrix(DFtest[,ncol(DFtest)])
   
   # Applying logistic regresion
-  model = glm(Y ~ ., data=DFtrain, family=binomial(link='logit'))
+  temp_model = glm(Y ~ ., data=DFtrain, family=binomial(link='logit'))
   
   # Extracting the betas
-  beta_logistic  = model$coefficients
+  beta_logistic  = temp_model$coefficients
   
   # Calculating training etas & probabilities
   eta_log_train <<- rep(0, nrow(Xtrain))
@@ -102,17 +102,17 @@ colnames(feature_test) = c("comb",
 # }
 # save(feature_test, file = "../Roeser, Jonas - 2_Data/feature_test.RData")
 
-# Reading the previously saved version of our data
+# Reading the feature_test created in the for-loop
 load("../Roeser, Jonas - 2_Data/feature_test.RData")
 
 # Because of OneDrive we need to load from two different paths
 load("../2_Data/feature_test.RData")
 
 best_comb = feature_test[which.max(feature_test[,3]),1]
-# --> We get the highest testing accuracy training with all feateures, except head to head!
+# --> We get the highest testing accuracy when training with all feateures, except head to head!
 
 
-# Optimising hyperparamters with optimised features -----------------------
+# Optimising hyperparameters with optimised features -----------------------
 
 # Again, there are no hyperparameters to optimise for logistic regression
 
@@ -133,12 +133,12 @@ plot(roc_test)
 
 # Kfold -------------------------------------------------------------------
 
-logistic_kfold = function(comb) {
-  DFtrain = DFkfold[testIndexes,comb]
+logistic_kfold = function(comb, data) {
+  DFtrain = data[testIndexes,comb]
   Xtrain = as.matrix(DFtrain[,c(1:(ncol(DFtrain)-1))])
   Ytrain = as.matrix(DFtrain[,ncol(DFtrain)])
   
-  DFtest = DFkfold[-testIndexes,comb]
+  DFtest = data[-testIndexes,comb]
   Xtest = as.matrix(DFtest[,c(1:(ncol(DFtest)-1))])
   Ytest = as.matrix(DFtest[,ncol(DFtest)])
   
@@ -185,19 +185,38 @@ logistic_kfold = function(comb) {
   return(c(accuracy_train, accuracy_test))
 }
 
-best_comb
+# Because we are unable to handle very large amounts of data for random forests, we split DFkfold up into 3 subsets
+DFkfold1 = DFkfold[1:(nrow(DFkfold)/3),]
+DFkfold2 = DFkfold[(nrow(DFkfold)/3):(nrow(DFkfold)*2/3),]
+DFkfold3 = DFkfold[(nrow(DFkfold)*2/3):nrow(DFkfold),]
 
-# Create 10 equally sized folds
-folds = cut(seq(1,nrow(DFkfold)),breaks=10,labels=FALSE)
+# Create 10 equally sized folds for each DKfold
+folds1 = cut(seq(1,nrow(DFkfold1)),breaks=10,labels=FALSE)
+folds2 = cut(seq(1,nrow(DFkfold2)),breaks=10,labels=FALSE)
+folds3 = cut(seq(1,nrow(DFkfold3)),breaks=10,labels=FALSE)
 
 # Create kfold matrix
-kfold = matrix(nrow = 10, ncol = 2)
+kfold = matrix(nrow = 30, ncol = 2)
 
-# Perform 10 fold cross validation
+best_comb
+
+# Perform 10 fold cross validation for each DKfold
 for(i in 1:10){
   # Segement your data by fold using the which() function
-  testIndexes = which(folds==i,arr.ind=TRUE)
-  kfold[i,] = logistic_kfold(c(1,2,3,4,5,7,8,9,10))
+  testIndexes = which(folds1==i,arr.ind=TRUE)
+  kfold[i,] = logistic_kfold(c(1,2,3,4,5,7,8,9,10), DFkfold1)
+}
+for(i in 1:10){
+  # Segement your data by fold using the which() function
+  testIndexes = which(folds2==i,arr.ind=TRUE)
+  kfold[i+10,] = logistic_kfold(c(1,2,3,4,5,7,8,9,10), DFkfold2)
+}
+for(i in 1:10){
+  # Segement your data by fold using the which() function
+  testIndexes = which(folds3==i,arr.ind=TRUE)
+  kfold[i+20,] = logistic_kfold(c(1,2,3,4,5,7,8,9,10), DFkfold3)
 }
 
-colMeans(kfold)
+# Saving model accuracy as "model_accuracy_RF.RData"
+model_accuracy_LOG = colMeans(kfold)
+# save(model_accuracy_RF, file = "../Roeser, Jonas - 2_Data/model_accuracy_RF.RData")

@@ -1,6 +1,7 @@
+
 # RANDOM FORESTS WITH BAGGING OPTIMIZATION
 
-# Setup-------------------------
+# Setup -------------------------
 
 library(tidyverse)
 library(ggplot2)
@@ -11,7 +12,10 @@ library(pROC)
 
 rm(list = ls())
 
+# Reading the previously saved version of our data
 load("../Roeser, Jonas - 2_Data/DF.RData")
+
+# Because of OneDrive we need to load from two different paths
 load("../2_Data/DF.RData")
 
 
@@ -27,50 +31,101 @@ DFkfold = DF[-(1:(0.3*nrow(DF))),]
 DFopt$Y = as.factor(DFopt$Y) #so the random forest function will treat it as a classification problem
 DFkfold$Y = as.factor(DFkfold$Y)
 
-# Optimizing   --------------------------------------------------
 
-# Pre-Optimizing Hyperparameters with all features---------------
+# Optimisation --------------------------------------------------
 
-#Finding the necessary number of trees
-temp_model = randomForest(Y ~ ., data= DFopt, ntree=1000)
+# Pre-optimising hyperparameters with all features ---------------
+
+# Finding the necessary number of trees
+temp_model = randomForest(Y ~ ., data=DFopt, ntree=1000)
 oob.error.data = data.frame(
   Trees=rep(1:nrow(temp_model$err.rate), times=3),
   Type=rep(c("OOB", "1", "0"), each=nrow(temp_model$err.rate)),
-  Error=c(temp_model$err.rate[,"OOB"],
-          temp_model$err.rate[,"1"],
-          temp_model$err.rate[,"0"]))
+  Error=temp_model$err.rate[,"OOB"])
 
 ggplot(data=oob.error.data, aes(x=Trees, y=Error)) +
   theme_bw() +
   geom_line(aes(color=Type))
-# we can see that the OOB error rate does not decrease significantly after [number of trees]
-# it is therefore sufficient to proceed with the standart 500 trees
+# We can see that the OOB error rate does not decrease significantly after 500.
+# It is therefore sufficient to proceed with the standart 500 trees
 
-# Finding the optimal number of variable at each internal nodes
-oob_values = vector(length=18)
+# Finding the optimal number of variables at each internal node
+oob_values = vector(length=10)
 
-
-for(i in 1:18) {
-  temp_model = randomForest(Y ~ ., data= DFopt, mtry=i)
+for(i in 1:10) {
+  temp_model = randomForest(Y ~ ., data=DFopt, mtry=i)
   oob_values[i] = temp_model$err.rate[nrow(temp_model$err.rate),1]
 }
 oob_values
-#We can see that mtry = 1 has the lowest OOB error rate and is therefore the optimal 
+# We can see that mtry = 1 has the lowest OOB error rate and is therefore optimal
 
 
-# Optimizing features with pre-optimized  hyperparameters ----------
+# Optimising features with pre-optimized hyperparameters ----------
 
+# Reading the feature_test created with logistic regression
 load("../Roeser, Jonas - 2_Data/feature_test.RData")
 
-# Optimizing hyperparameters with optimized features --------------
+# Because of OneDrive we need to load from two different paths
+load("../2_Data/feature_test.RData")
+
+# Creating a matrix for testing the 10 best feature combinations of logistic regression
+feature_test_oob = matrix(nrow = 10, ncol = 2)
+colnames(feature_test_oob) = c("comb",
+                           "oob_error")
+feature_test_oob[,1] = feature_test[order(feature_test[,3], decreasing=T)[1:10],1]
+
+# Creating function that takes feature combination vector as input
+forest = function(comb) {
+  DFopt = DFopt[,comb]
+  
+  # Applying random forest
+  temp_model = randomForest(Y ~ ., data=DFopt, mtry=1)
+  
+  return(temp_model$err.rate[nrow(temp_model$err.rate),1])
+}
+
+for(i in 1:10) {
+  feature_test_oob[i,2] = forest(c(unlist(lapply(strsplit(feature_test_oob[i,1], split=","), as.numeric)),10))
+}
+
+best_comb = feature_test_oob[which.min(feature_test_oob[,2]),1]
+# --> We get the highest testing accuracy when training with all feateures, except fatigue!
+
+# Optimising hyperparameters with optimized features --------------
+
+# Now we use the optimal feature combination from above
+best_comb
+
+# Finding the necessary number of trees
+temp_model = randomForest(Y ~ ., data=DFopt[,c(1,2,3,4,5,6,7,9,10)], ntree=4000)
+oob.error.data = data.frame(
+  Trees=rep(1:nrow(temp_model$err.rate), times=3),
+  Type=rep(c("OOB", "1", "0"), each=nrow(temp_model$err.rate)),
+  Error=temp_model$err.rate[,"OOB"])
+
+ggplot(data=oob.error.data, aes(x=Trees, y=Error)) +
+  theme_bw() +
+  geom_line(aes(color=Type))
+# We can see that the OOB error rate does not decrease significantly after 2000.
+# It is therefore sufficient to proceed with 2000 trees
 
 
+# Finding the optimal number of variables at each internal node
+oob_values = vector(length=10)
 
+for(i in 1:10) {
+  temp_model = randomForest(Y ~ ., data=DFopt[,c(1,2,3,4,5,6,7,9,10)], mtry=i, ntree=2000)
+  oob_values[i] = temp_model$err.rate[nrow(temp_model$err.rate),1]
+}
+oob_values
+# We can see that mtry = 1 still has the lowest OOB error rate and is therefore optimal
 
+# Creating the optimal model
+model = randomForest(Y ~ ., data=DFopt[,c(1,2,3,4,5,6,7,9,10)], mtry=1, ntree=2000)
 
 # Plotting ROC curve -------------------
 
-prob_RF_DFopt = as.matrix(predict(model,DFopt, type="prob"))
+prob_RF_DFopt = as.matrix(predict(model,DFopt[,c(1,2,3,4,5,6,7,9,10)], type="prob"))
 varImpPlot(model, scale=F)
 ROC_Dfopt = roc(Y ~ prob_RF_train[,2],auc = T)
 plot(prob_RF_DFopt)
@@ -78,95 +133,88 @@ plot(prob_RF_DFopt)
 
 # Kfold --------------------------------
 
-#Creating the errors matrix
-errors = matrix(0, 10, 6 )
-colnames(errors) = c("f_pos_train", 
-                     "f_neg_train", 
-                     "acc_train", 
-                     "f_pos_test", 
-                     "f_neg_test", 
-                     "acc_test")
-
-# Create 10 equally size folds
-folds = cut(seq(1,nrow(DF)),breaks=10,labels=FALSE)
-
 # Perform 10 fold cross validation
-for(i in 1:10){
+forest_kfold = function(comb, data, folds) {
+  # Only choose the applicable feature combination
+  data = data[,comb]
+  
   # Segement your data by fold using the which() function
   testIndexes <- which(folds==i,arr.ind=TRUE)
-  testData <- DFkfold[testIndexes, ]
-  trainData <- DFkfold[-testIndexes, ]
+  testData <- data[testIndexes, ]
+  trainData <- data[-testIndexes, ]
   
   # So randomeForest will do a classification, not a regression:
   trainData$Y = as.factor(trainData$Y)
   testData$Y = as.factor(testData$Y)
   
   # Splitting X and Y
-  
-  Ytrain = as.data.frame(trainData[,ncol(DF)])            
-  Ytest = as.data.frame(testData[,ncol(DF)])
+  Ytrain = as.data.frame(trainData[,ncol(trainData)])            
+  Ytest = as.data.frame(testData[,ncol(testData)])
   
   # Training model
-  model = randomForest(Y ~ ., data=trainData, mtry =1, ntree=500, proximity=TRUE) #######################
-  
-  # Calculating Training Errors 
+  model = randomForest(Y ~ ., data=trainData, mtry=1, ntree=2000, proximity=TRUE) #######################
   
   # Calculating the training eta
   eta_RF_train = as.data.frame(predict(model,type="response",
                                        norm.votes=TRUE, predict.all=FALSE, proximity=FALSE, nodes=FALSE))
   
-  # Calculating training error
-  for (j in 1:nrow(trainData)) {
-    if(eta_RF_train[j,1] == 1 && Ytrain[j,1] == 0) {
-      errors[[i,1]] = errors[[i,1]] + 1
-    }
-    if(eta_RF_train[j,1] == 0 && Ytrain[j,1] == 1) {
-      errors[[i,2]] = errors[[i,2]] + 1
+  # Calculating training accuracy
+  errors = 0
+  for (i in 1:nrow(trainData)) {
+    if(eta_RF_train[i,1] != Ytrain[i,1]) {
+      errors = errors + 1
     }
   }
-  
-  # Calculating error percentages
-  errors[[i,1]] = errors[[i,1]]/nrow(eta_RF_train)
-  errors[[i,2]] = errors[[i,2]]/nrow(eta_RF_train)
-  
-  # Calculating the accuracy
-  errors[[i,3]] = 1-(errors[[i,1]] + errors[[i,2]]) 
-  
-  
-  # Calculating Testing Errors 
+  accuracy_train = 1-(errors/nrow(Ytrain))
   
   # Calculating the testing eta
   eta_RF_test = as.data.frame(predict(model,testData, type="response",
                                       norm.votes=TRUE, predict.all=FALSE, proximity=FALSE, nodes=FALSE))
   
   # Calculating testing errors
-  for (j in 1:nrow(testData)) {
-    if(eta_RF_test[j,1] == 1 && Ytest[j,1] == 0) {
-      errors[[i,4]] = errors[[i,4]] + 1
-    }
-    if(eta_RF_test[j,1] == 0 && Ytest[j,1] == 1) {
-      errors[[i,5]] = errors[[i,5]] + 1
+  errors = 0
+  for (i in 1:nrow(testData)) {
+    if(eta_RF_test[i,1] != Ytest[i,1]) {
+      errors = errors + 1
     }
   }
-  # Calculating error percentages
-  errors[[i,4]] = errors[[i,4]]/nrow(eta_RF_test)
-  errors[[i,5]] = errors[[i,5]]/nrow(eta_RF_test)
+  accuracy_test = 1-(errors/nrow(Ytest))
   
-  # Calculating the accuracy
-  errors[[i,6]] = 1-(errors[[i,4]] + errors[[i,5]])
+  return(c(accuracy_train, accuracy_test))
 }
 
-# Summary 
-model_acc_RF = t(colMeans(errors))
+# Because we are unable to handle very large amounts of data, we split DFkfold up into 3 subsets
+DFkfold1 = DFkfold[1:(nrow(DFkfold)/3),]
+DFkfold2 = DFkfold[(nrow(DFkfold)/3):(nrow(DFkfold)*2/3),]
+DFkfold3 = DFkfold[(nrow(DFkfold)*2/3):nrow(DFkfold),]
 
+# Create 10 equally sized folds for each DKfold
+folds1 = cut(seq(1,nrow(DFkfold1)),breaks=10,labels=FALSE)
+folds2 = cut(seq(1,nrow(DFkfold2)),breaks=10,labels=FALSE)
+folds3 = cut(seq(1,nrow(DFkfold3)),breaks=10,labels=FALSE)
 
+# Create kfold matrix
+kfold = matrix(nrow = 30, ncol = 2)
 
+best_comb
 
+# Perform 10 fold cross validation for each DKfold
+for(i in 1:10){
+  # Segement your data by fold using the which() function
+  testIndexes = which(folds1==i,arr.ind=TRUE)
+  kfold[i,] = forest_kfold(c(1,2,3,4,5,6,7,9,10), DFkfold1, folds1)
+}
+for(i in 1:10){
+  # Segement your data by fold using the which() function
+  testIndexes = which(folds2==i,arr.ind=TRUE)
+  kfold[i+10,] = forest_kfold(c(1,2,3,4,5,6,7,9,10), DFkfold2, folds2)
+}
+for(i in 1:10){
+  # Segement your data by fold using the which() function
+  testIndexes = which(folds3==i,arr.ind=TRUE)
+  kfold[i+20,] = forest_kfold(c(1,2,3,4,5,6,7,9,10), DFkfold3, folds3)
+}
 
-# Getting probabilities predictions ----------------------------------
-
-
-
-
-
-
+# Saving model accuracy as "model_accuracy_RF.RData"
+model_accuracy_RF = colMeans(kfold)
+save(model_accuracy_RF, file = "../Roeser, Jonas - 2_Data/model_accuracy_RF.RData")
