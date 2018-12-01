@@ -17,7 +17,7 @@ set.seed(1)
 # Data Preperation ---------------------------------------------------
 
 # We cannot take the whole dataset because of computational restrictions (so we dont get 70 gb)
-DF= sample_n(as.data.frame(DF), 3000)
+DF = sample_n(as.data.frame(DF), 3000)
 
 #Creating the errors matrix
 errors = matrix(0, 10, 6 )
@@ -27,11 +27,6 @@ colnames(errors) = c("f_pos_train",
                      "f_pos_test", 
                      "f_neg_test", 
                      "acc_test")
-
-# Selecting amount of data to run
-n = nrow(DF)
-# n = 1000
-DF = DF[sample(n),]
 
 # Create 10 equally size folds
 folds = cut(seq(1,nrow(DF)),breaks=10,labels=FALSE)
@@ -100,7 +95,6 @@ for(i in 1:10){
   
   # Calculating the accuracy
   errors[[i,6]] = 1-(errors[[i,4]] + errors[[i,5]])
-  
 }
 
 # Summary ------------------------------------------------------------
