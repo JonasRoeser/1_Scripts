@@ -69,6 +69,11 @@ Y = D1$Y
 # Standardizing D1 ---------------------------------------
 
 # We dont want to standardize Y
+std_params = rbind(apply(D1, 2, mean, na.rm = T),
+                   apply(D1, 2, sd, na.rm = T))
+# Saving "std_params" as "std_params.RData"
+# save(std_params, file = "../Roeser, Jonas - 2_Data/std_params.RData")
+
 D1 = scale(D1[1:(ncol(D1)-1)])
 # --> maybe this needs to be done manually in order to be able to standardise the fornt-end input!
 

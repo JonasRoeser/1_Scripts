@@ -80,7 +80,7 @@ logistic = function(comb) {
   return(c(accuracy_train, accuracy_test))
 }
 
-# As there are no hyperparameters to optimise for logistic regression, the optimal model with all features is:
+# As there are no hyperparameters we chose to optimise for logistic regression, the optimal model with all features is:
 logistic(c(1,10))
 
 
@@ -92,15 +92,15 @@ colnames(feature_test) = c("comb",
                            "accuracy_test")
 
 # This for-loop takes quite long to finish
-# k = 0
-# for(i in 1:9) {
-#   for(j in 1:ncol(combn(9,i))) {
-#     k = k + 1
-#     feature_test[k,1] = paste(rbind(combn(9,i))[,j], collapse = ",")
-#     feature_test[k,2:3] = logistic(c(as.double(paste(rbind(combn(9,i))[,j])),10))
-#   }
-# }
-# save(feature_test, file = "../Roeser, Jonas - 2_Data/feature_test.RData")
+k = 0
+for(i in 1:9) {
+  for(j in 1:ncol(combn(9,i))) {
+    k = k + 1
+    feature_test[k,1] = paste(rbind(combn(9,i))[,j], collapse = ",")
+    feature_test[k,2:3] = logistic(c(as.double(paste(rbind(combn(9,i))[,j])),10))
+  }
+}
+# Save(feature_test, file = "../Roeser, Jonas - 2_Data/feature_test.RData")
 
 # Reading the feature_test created in the for-loop
 load("../Roeser, Jonas - 2_Data/feature_test.RData")
@@ -114,7 +114,7 @@ best_comb = feature_test[which.max(feature_test[,3]),1]
 
 # Optimising hyperparameters with optimised features -----------------------
 
-# Again, there are no hyperparameters to optimise for logistic regression
+# Again, there are no hyperparameters we chose to optimise for logistic regression
 
 
 # Plotting ROC curve ------------------------------------------------------
@@ -219,4 +219,4 @@ for(i in 1:10){
 
 # Saving model accuracy as "model_accuracy_RF.RData"
 model_accuracy_LOG = colMeans(kfold)
-# save(model_accuracy_RF, file = "../Roeser, Jonas - 2_Data/model_accuracy_RF.RData")
+# save(model_accuracy_LOG, file = "../Roeser, Jonas - 2_Data/model_accuracy_LOG.RData")

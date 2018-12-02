@@ -1,24 +1,44 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i");
 
 body {
-    background-color: white;
+    background-color: rgb(238, 238, 238);
     font-family: 'Roboto', sans-serif;
     font-weight: 100;
 }
 
-header {
-    
+#container1 {
+    display: inline-block;
+    color: rgb(53, 53, 53);
+    font-size: 7em;
+    font-weight: 500;
+}
+
+#container2 {
+    display: inline-block;
+    color: rgb(53, 53, 53);
+    font-size: 7em;
+    font-weight: 500;
+    text-align: center;
+}
+
+#container3 {
+    display: inline-block;
+    color: rgb(53, 53, 53);
+    font-size: 7em;
+    font-weight: 500;
 }
 
 h1 {
-    color: black;
-    font-size: 4em;
-    font-weight: 100;
+    color: rgb(53, 53, 53);
+    font-size: 7em;
+    font-weight: 900;
 }
 
 h2 {
-    color: red;
+    color: rgb(196, 2, 2);
     font-weight: 100;
+    font-size: 4em;
+    font-weight: 700;
 }
 
 label {
@@ -27,9 +47,4 @@ label {
 
 input {
     font-weight: 100;
-}
-
-p {
-    font-size: 5em;
-    font-weight: 500;
 }

@@ -1,12 +1,16 @@
 
-# NEURAL NETWORK
+# RANDOM FORESTS WITH BAGGING OPTIMIZATION
 
-# Setup -------------------------------------------------------------------
+# Setup -------------------------
 
 library(tidyverse)
 library(caret)
 library(pROC)
-library(nnet)
+# cran <- getOption("repos")
+# cran["dmlc"] <- "https://s3-us-west-2.amazonaws.com/apache-mxnet/R/CRAN/"
+# options(repos = cran)
+# install.packages("mxnet",dependencies = T)
+library(mxnet)
 
 rm(list = ls())
 
@@ -17,310 +21,220 @@ load("../Roeser, Jonas - 2_Data/DF.RData")
 load("../2_Data/DF.RData")
 
 
-# Preperation -------------------------------------------------------------
+# Preperation ------------
 
+# Data Formatting
 DFopt = DF[1:(0.3*nrow(DF)),]
-
 DFkfold = DF[-(1:(0.3*nrow(DF))),]
 
-
-# Optimisation ------------------------------------------------------------
-
-# Pre-optimising hyperparameters with all features -------------------------
-
-# Creating function that takes feature combination vector as input
-logistic = function(comb) {
-  DFtrain = DFopt[1:(0.7*nrow(DFopt)),comb]
-  Xtrain = as.matrix(DFtrain[,c(1:(ncol(DFtrain)-1))])
-  Ytrain <<- as.matrix(DFtrain[,ncol(DFtrain)])
-  
-  DFtest = DFopt[-(1:(0.7*nrow(DFopt))),comb]
-  Xtest = as.matrix(DFtest[,c(1:(ncol(DFtest)-1))])
-  Ytest <<- as.matrix(DFtest[,ncol(DFtest)])
-  
-  # Applying logistic regresion
-  temp_model = glm(Y ~ ., data=DFtrain, family=binomial(link='logit'))
-  
-  # Extracting the betas
-  beta_logistic  = temp_model$coefficients
-  
-  # Calculating training etas & probabilities
-  eta_log_train <<- rep(0, nrow(Xtrain))
-  prob_log_train <<- rep(0, nrow(Xtrain))
-  for (i in 1:nrow(Xtrain)) {
-    eta_log_train[i] <<- round(exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic)))
-    prob_log_train[i] <<- exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic))
-  }
-  
-  # Calculating training accuracy
-  errors = 0
-  for (i in 1:nrow(Xtrain)) {
-    if(eta_log_train[i] != Ytrain[i]) {
-      errors = errors + 1
-    }
-  }
-  accuracy_train = 1-(errors/nrow(Xtrain))
-  
-  # Calculating testing etas & probabilities
-  eta_log_test <<- rep(0, nrow(Xtest))
-  prob_log_test <<- rep(0, nrow(Xtest))
-  for (i in 1:nrow(Xtest)) {
-    eta_log_test[i] <<- round(exp(c(1, Xtest[i,]) %*% beta_logistic) / (1+exp(c(1,Xtest[i,]) %*% beta_logistic)))
-    prob_log_test[i] <<- exp(c(1, Xtest[i,]) %*% beta_logistic) / (1+exp(c(1,Xtest[i,]) %*% beta_logistic))
-  }
-  
-  # Calculating testing errors
-  errors = 0
-  for (i in 1:nrow(Xtest)) {
-    if(eta_log_test[i] != Ytest[i]) {
-      errors = errors + 1
-    }
-  }
-  accuracy_test = 1-(errors/nrow(Xtest))
-  
-  return(c(accuracy_train, accuracy_test))
-}
-
-# As there are no hyperparameters to optimise for logistic regression, the optimal model with all features is:
-logistic(c(1,10))
+# Train() needs the ouput to be a factor of two levels
+DFopt[,ncol(DFopt)] = as.factor(DFopt[,ncol(DFopt)])
+DFkfold[,ncol(DFkfold)] = as.factor(DFkfold[,ncol(DFopt)])
 
 
-# Optimising features with pre-optimised hyperparameters ------------------
+# Optimisation --------------------------------------------------
 
-feature_test = matrix(nrow = 511, ncol = 3)
-colnames(feature_test) = c("comb",
-                           "accuracy_train",
-                           "accuracy_test")
+# Pre-optimising hyperparameters with all features ---------------
 
-# This for-loop takes quite long to finish
-# k = 0
-# for(i in 1:9) {
-#   for(j in 1:ncol(combn(9,i))) {
-#     k = k + 1
-#     feature_test[k,1] = paste(rbind(combn(9,i))[,j], collapse = ",")
-#     feature_test[k,2:3] = logistic(c(as.double(paste(rbind(combn(9,i))[,j])),10))
-#   }
-# }
-# save(feature_test, file = "../Roeser, Jonas - 2_Data/feature_test.RData")
+# The grid allows us to create several different models with various parameter settings.
+# Grid features
+grid = expand.grid(layer1 = seq(1,11,2),
+                   layer2 = seq(0,8,2),
+                   layer3 = seq(0,9,3),
+                   learning.rate = c(0.05,0.1),
+                   momentum = 0.85,
+                   dropout = 0.5,
+                   activation = "relu"
+)
 
-# Reading the feature_test created in the for-loop
+# We are using 5-fold cross-validation for paramter tuning
+control = trainControl(method = "cv",
+                       number = 5)
+
+temp_model = train(Y ~ .,
+                   data = DFopt,
+                   method = "mxnet",
+                   tuneGrid = grid,
+                   trControl = control,
+                   num.round = 10,
+                   maximize = TRUE
+                   )
+
+# Accuracy was used to select the optimal model using the largest value.
+# The final values used for the model were
+# layer1 = 5
+# layer2 = 6
+# layer3 = 6
+# learning.rate = 0.1
+# momentum = 0.85
+# dropout = 0.5
+# activation = "relu"
+
+
+# Optimising features with pre-optimized hyperparameters ----------
+
+# Reading the feature_test created with logistic regression
 load("../Roeser, Jonas - 2_Data/feature_test.RData")
 
 # Because of OneDrive we need to load from two different paths
 load("../2_Data/feature_test.RData")
 
-best_comb = feature_test[which.max(feature_test[,3]),1]
-# --> We get the highest testing accuracy when training with all feateures, except head to head!
+# Creating a matrix for testing the 10 best feature combinations of logistic regression
+feature_test_nn = matrix(nrow = 10, ncol = 2)
+colnames(feature_test_oob) = c("comb",
+                               "nn_accuracy")
+feature_test_nn[,1] = feature_test[order(feature_test[,3], decreasing=T)[1:10],1]
 
-
-# Optimising hyperparameters with optimised features -----------------------
-
-# Again, there are no hyperparameters to optimise for logistic regression
-
-
-# Plotting ROC curve ------------------------------------------------------
-
-best_comb
-
-logistic(c(1,2,3,4,5,7,8,9,10))
-
-roc_train = roc(Ytrain ~ prob_log_train,
-                auc = T)
-plot(roc_train)
-roc_test = roc(Ytest ~ prob_log_test,
-               auc = T)
-plot(roc_test)
-
-
-# Kfold -------------------------------------------------------------------
-
-logistic_kfold = function(comb) {
-  DFtrain = DFkfold[testIndexes,comb]
-  Xtrain = as.matrix(DFtrain[,c(1:(ncol(DFtrain)-1))])
-  Ytrain = as.matrix(DFtrain[,ncol(DFtrain)])
+# Creating function that takes feature combination vector as input
+neural = function(comb) {
+  DFopt = DFopt[,comb]
   
-  DFtest = DFkfold[-testIndexes,comb]
-  Xtest = as.matrix(DFtest[,c(1:(ncol(DFtest)-1))])
-  Ytest = as.matrix(DFtest[,ncol(DFtest)])
+  grid = expand.grid(layer1 = 5,
+                     layer2 = 6,
+                     layer3 = 6,
+                     learning.rate = 0.1,
+                     momentum = 0.85,
+                     dropout = 0.5,
+                     activation = "relu"
+  )
   
-  # Applying logistic regresion
-  model = glm(Y ~ ., data=DFtrain, family=binomial(link='logit'))
+  # We are using 5-fold cross-validation for paramter tuning
+  control = trainControl(method = "cv",
+                         number = 10)
   
-  # Extracting the betas
-  beta_logistic  = model$coefficients
+  temp_model = train(Y ~ .,
+                     data = DFopt,
+                     method = "mxnet",
+                     tuneGrid = grid,
+                     trControl = control,
+                     num.round = 10,
+                     maximize = TRUE
+  )
   
-  # Calculating training etas & probabilities
-  eta_log_train = rep(0, nrow(Xtrain))
-  prob_log_train = rep(0, nrow(Xtrain))
-  for (i in 1:nrow(Xtrain)) {
-    eta_log_train[i] = round(exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic)))
-    prob_log_train[i] = exp(c(1, Xtrain[i,]) %*% beta_logistic) / (1+exp(c(1,Xtrain[i,]) %*% beta_logistic))
-  }
-  
-  # Calculating training accuracy
-  errors = 0
-  for (i in 1:nrow(Xtrain)) {
-    if(eta_log_train[i] != Ytrain[i]) {
-      errors = errors + 1
-    }
-  }
-  accuracy_train = 1-(errors/nrow(Xtrain))
-  
-  # Calculating testing etas & probabilities
-  eta_log_test = rep(0, nrow(Xtest))
-  prob_log_test = rep(0, nrow(Xtest))
-  for (i in 1:nrow(Xtest)) {
-    eta_log_test[i] = round(exp(c(1, Xtest[i,]) %*% beta_logistic) / (1+exp(c(1,Xtest[i,]) %*% beta_logistic)))
-    prob_log_test[i] = exp(c(1, Xtest[i,]) %*% beta_logistic) / (1+exp(c(1,Xtest[i,]) %*% beta_logistic))
-  }
-  
-  # Calculating testing errors
-  errors = 0
-  for (i in 1:nrow(Xtest)) {
-    if(eta_log_test[i] != Ytest[i]) {
-      errors = errors + 1
-    }
-  }
-  accuracy_test = 1-(errors/nrow(Xtest))
-  
-  return(c(accuracy_train, accuracy_test))
+  return(temp_model$results$Accuracy)
 }
 
+for(i in 1:10) {
+  feature_test_nn[i,2] = neural(c(unlist(lapply(strsplit(feature_test_nn[i,1], split=","), as.numeric)),10))
+}
+
+best_comb = feature_test_nn[which.max(feature_test_nn[,2]),1]
+# --> We get the highest testing accuracy when training with all feateures, except home game!
+
+# Optimising hyperparameters with optimized features --------------
+
+# Now we use the optimal feature combination from above
 best_comb
 
-# Create 10 equally sized folds
-folds = cut(seq(1,nrow(DFkfold)),breaks=10,labels=FALSE)
+# The grid allows us to create several different models with various parameter settings.
+# Grid features
+grid = expand.grid(layer1 = c(4,5,6),
+                   layer2 = c(5,6,7),
+                   layer3 = c(5,6,7),
+                   learning.rate = c(0.075,0.125),
+                   momentum = 0.85,
+                   dropout = 0.5,
+                   activation = "relu"
+)
 
-# Create kfold matrix
-kfold = matrix(nrow = 10, ncol = 2)
+# We are using 5-fold cross-validation for paramter tuning
+control = trainControl(method = "cv",
+                       number = 5)
+
+temp_model = train(Y ~ .,
+              data = DFopt[,c(1,2,3,4,5,6,7,8,10)],
+              method = "mxnet",
+              tuneGrid = grid,
+              trControl = control,
+              num.round = 20,
+              maximize = TRUE
+)
+
+# Accuracy was used to select the optimal model using the largest value.
+# The final values used for the model were
+# layer1 = 6
+# layer2 = 5
+# layer3 = 6
+# learning.rate = 0.075
+# momentum = 0.85
+# dropout = 0.5
+# activation = "relu"
+
+# Creating the optimal model
+grid = expand.grid(layer1 = 6,
+                   layer2 = 5,
+                   layer3 = 6,
+                   learning.rate = 0.075,
+                   momentum = 0.85,
+                   dropout = 0.5,
+                   activation = "relu"
+)
+
+control = trainControl(method = "cv",
+                       number = 5)
+
+model = train(Y ~ .,
+                   data = DFopt[,c(1,2,3,4,5,6,7,8,10)],
+                   method = "mxnet",
+                   tuneGrid = grid,
+                   trControl = control,
+                   num.round = 20,
+                   maximize = TRUE
+)
+
+
+# Plotting ROC curve -------------------
+
+prob_NN_DFopt = as.matrix(predict(model,DFopt[,c(1,2,3,4,5,6,7,8,10)], type="prob"))
+ROC_Dfopt = roc(Y ~ prob_NN_DFopt[,2],auc = T)
+plot(prob_RF_DFopt)
+
+
+# Kfold --------------------------------
 
 # Perform 10 fold cross validation
-for(i in 1:10){
-  # Segement your data by fold using the which() function
-  testIndexes = which(folds==i,arr.ind=TRUE)
-  kfold[i,] = logistic_kfold(c(1,2,3,4,5,7,8,9,10))
+neural_kfold = function (data,comb) {
+  data = data[,comb]
+  
+  grid = expand.grid(layer1 = 6,
+                     layer2 = 5,
+                     layer3 = 6,
+                     learning.rate = 0.075,
+                     momentum = 0.85,
+                     dropout = 0.5,
+                     activation = "relu"
+                     )
+
+  control = trainControl(method = "cv",
+                       number = 10)
+
+  model = train(Y ~ .,
+                data = data,
+                method = "mxnet",
+                tuneGrid = grid,
+                trControl = control,
+                num.round = 20,
+                maximize = TRUE
+                )
+  
+  return(model$results$Accuracy)
 }
 
-colMeans(kfold)
-# Setup --------------------------------------------------------------
+# Because we are unable to handle very large amounts of data, we split DFkfold up into 3 subsets
+DFkfold1 = DFkfold[1:(nrow(DFkfold)/3),]
+DFkfold2 = DFkfold[(nrow(DFkfold)/3):(nrow(DFkfold)*2/3),]
+DFkfold3 = DFkfold[(nrow(DFkfold)*2/3):nrow(DFkfold),]
 
-rm(list = ls())
+# Create kfold matrix
+kfold = matrix(nrow = 3, ncol = 1)
 
-# Reading the previously saved version of our data
-load("../Roeser, Jonas - 2_Data/DF.RData")
+best_comb
 
-# Because of OneDrive we need to load from two different paths
-load("../2_Data/DF.RData")
+# Perform 10 fold cross validation for each DKfold
+kfold[1,1] = neural_kfold(DFkfold1, c(1,2,3,4,5,6,7,8,10))
+kfold[2,1] = neural_kfold(DFkfold2, c(1,2,3,4,5,6,7,8,10))
+kfold[3,1] = neural_kfold(DFkfold3, c(1,2,3,4,5,6,7,8,10))
 
-
-# Data Preparation ---------------------------------------------------
-
-
-
-neural = function(size, rang, decay, maxit) {
-  model <<- nnet(train[,1:4], train[,5], size = size, rang = rang,
-              decay = decay, maxit = maxit)
-  
-  eta_log_train = round(predict(model, train))
-  
-  falsePositivesTrain = 0
-  falseNegativesTrain = 0
-  
-  for (i in 1:nrow(train)) {
-    if(eta_log_train[i] == 1 && train[i,5] == 0) {
-      falsePositivesTrain = falsePositivesTrain + 1
-    }
-    if(eta_log_train[i] == 0 && train[i,5] == 1) {
-      falseNegativesTrain = falseNegativesTrain + 1
-    }
-  }
-  
-  falsePositivesTrain = falsePositivesTrain/nrow(train) # Calculating a percentage
-  falseNegativesTrain = falseNegativesTrain/nrow(train) # Calculating a percentage
-  accuracyTrain = 1-(falsePositivesTrain + falseNegativesTrain) # Calculating the accuracy
-  
-  
-  # Testing -----------------------------------------------------------------
-  
-  eta_log_test = round(predict(model, test))
-  
-  
-  # Calculating Testing Errors ----------------------------------------------
-  
-  falsePositivesTest = 0
-  falseNegativesTest = 0
-  
-  for (i in 1:nrow(test)) {
-    if(eta_log_test[i] == 1 && test[i,5] == 0) {
-      falsePositivesTest = falsePositivesTest + 1
-    }
-    if(eta_log_test[i] == 0 && test[i,5] == 1) {
-      falseNegativesTest = falseNegativesTest + 1
-    }
-  }
-  
-  falsePositivesTest = falsePositivesTest/nrow(test) # Calculating a percentage
-  falseNegativesTest = falseNegativesTest/nrow(test) # Calculating a percentage
-  accuracyTest = 1-(falsePositivesTest + falseNegativesTest) # Calculating the accuracy
-  
-  return(c(accuracyTrain, accuracyTest))
-}
-
-neural(4,0.9,0.001,50)
-
-# install.packages("neuralnet")
-library(neuralnet)
-
-multineural = function(hidden, learningrate, rep, linear.output) {
-  n <- colnames(train)
-  f <- as.formula(paste("Y ~", paste(n[!n %in% "Y"], collapse = " + ")))
-  model <<- neuralnet(f, data = train, hidden = hidden,
-                learningrate = learningrate, rep = rep, linear.output = linear.output)
-  
-  eta_log_train = round(compute(model, train[,1:4]))
-  
-  falsePositivesTrain = 0
-  falseNegativesTrain = 0
-  
-  for (i in 1:nrow(train)) {
-    if(eta_log_train[i] == 1 && train[i,5] == 0) {
-      falsePositivesTrain = falsePositivesTrain + 1
-    }
-    if(eta_log_train[i] == 0 && train[i,5] == 1) {
-      falseNegativesTrain = falseNegativesTrain + 1
-    }
-  }
-  
-  falsePositivesTrain = falsePositivesTrain/nrow(train) # Calculating a percentage
-  falseNegativesTrain = falseNegativesTrain/nrow(train) # Calculating a percentage
-  accuracyTrain = 1-(falsePositivesTrain + falseNegativesTrain) # Calculating the accuracy
-  
-  
-  # Testing -----------------------------------------------------------------
-  
-  eta_log_test = round(compute(model, test[,1:4]))
-  
-  
-  # Calculating Testing Errors ----------------------------------------------
-  
-  falsePositivesTest = 0
-  falseNegativesTest = 0
-  
-  for (i in 1:nrow(test)) {
-    if(eta_log_test[i] == 1 && test[i,5] == 0) {
-      falsePositivesTest = falsePositivesTest + 1
-    }
-    if(eta_log_test[i] == 0 && test[i,5] == 1) {
-      falseNegativesTest = falseNegativesTest + 1
-    }
-  }
-  
-  falsePositivesTest = falsePositivesTest/nrow(test) # Calculating a percentage
-  falseNegativesTest = falseNegativesTest/nrow(test) # Calculating a percentage
-  accuracyTest = 1-(falsePositivesTest + falseNegativesTest) # Calculating the accuracy
-  
-  return(c(accuracyTrain, accuracyTest))
-}
-
-multineural(c(1,1),0.005,2,F)
-plot(model)
+# Saving model accuracy as "model_accuracy_NN.RData"
+model_accuracy_NN = colMeans(kfold)
+# save(model_accuracy_NN, file = "../Roeser, Jonas - 2_Data/model_accuracy_NN.RData")
