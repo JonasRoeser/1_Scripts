@@ -130,7 +130,7 @@ server <- function(input, output) {
                                       diff_rank = ((input$rank0 - input$rank1) - std_params[1,4]) / std_params[2,4],
                                       diff_form_weighted = (((input$form_1_0 + input$form_5_0 + input$form_10_0) - (input$form_1_1 + input$form_5_1 + input$form_10_1)) - std_params[1,5]) / std_params[2,5],
                                       h2h = (((input$h2h0 + 1) / (input$h2h1 + 1)) - std_params[1,6]) / std_params[2,6],
-                                      diff_conditions_wins = ((input$condition_wins0 - input$condition_wins1) - std_params[1,7]) / std_params[2,7],
+                                      diff_conditions_wins = ((input$condition_wins0 - input$condition_wins1)/100 - std_params[1,7]) / std_params[2,7],
                                       # fatigue_diff = (((input$fatigue_1_0 + input$fatigue_2_0/3) - (input$fatigue_1_1 + input$fatigue_2_1/3)) - std_params[1,8]) / std_params[2,8],
                                       home_game_diff = ((input$home_game0 - input$home_game1) - std_params[1,9]) / std_params[2,9]),
                       type = "prob")[1]*1.05), digits = 2))
@@ -144,7 +144,7 @@ server <- function(input, output) {
                                        diff_rank = ((input$rank0 - input$rank1) - std_params[1,4]) / std_params[2,4],
                                        diff_form_weighted = (((input$form_1_0 + input$form_5_0 + input$form_10_0) - (input$form_1_1 + input$form_5_1 + input$form_10_1)) - std_params[1,5]) / std_params[2,5],
                                        h2h = (((input$h2h0 + 1) / (input$h2h1 + 1)) - std_params[1,6]) / std_params[2,6],
-                                       diff_conditions_wins = ((input$condition_wins0 - input$condition_wins1) - std_params[1,7]) / std_params[2,7],
+                                       diff_conditions_wins = ((input$condition_wins0 - input$condition_wins1)/100 - std_params[1,7]) / std_params[2,7],
                                        # fatigue_diff = (((input$fatigue_1_0 + input$fatigue_2_0/3) - (input$fatigue_1_1 + input$fatigue_2_1/3)) - std_params[1,8]) / std_params[2,8],
                                        home_game_diff = ((input$home_game0 - input$home_game1) - std_params[1,9]) / std_params[2,9]),
                        type = "prob")[2]*1.05), digits = 2))
