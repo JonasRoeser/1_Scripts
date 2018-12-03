@@ -4,18 +4,14 @@
 # Setup -------------------------
 
 library(tidyverse)
-library(caret)
-library(pROC)
 library(plyr)
-library(randomForest)
+library(caret)
 library(gbm)
+library(randomForest)
+library(ROCR)
 library(Ecdat)
 # install.packages('e1071', dependencies=TRUE)
 library(e1071)
-library(mlbench)
-library(MLmetrics)
-library(ROCR)
-# Hier fehlt eins hab aber vergessen wie es heisst
 
 rm(list = ls())
 
@@ -255,80 +251,3 @@ FINALmodel = train(Y ~ .,
 
 # Saving FINALmodel accuracy as "FINALmodel.RData"
 # save(FINALmodel, file = "../Roeser, Jonas - 2_Data/FINALmodel.RData")
-
-# Other stuff ---------------------
-train[,ncol(train)] = as.numeric(levels(train[,ncol(train)]))[train[,ncol(train)]]
-test[,ncol(test)] = as.numeric(levels(test[,ncol(test)]))[test[,ncol(test)]]
-
-
-gbm.model = gbm(Y~.,
-                data              = train, 
-                interaction.depth = 5,
-                n.minobsinnode    = 3,
-                shrinkage         = 0.05, 
-                distribution      = 'bernoulli', 
-                cv.folds          = 5,
-                n.trees           = 225
-)
-best.iter = gbm.perf(temp_model, method="cv")
-best.iter
-summary(temp_model)
-
-
-# Need to backscale to original df for visually understandable results
-# Plotting the marginal effect of selected variables by "integrating"
-# out the other variables
-plot.gbm(gbm.model, 1, best.iter)
-plot.gbm(gbm.model, 2, best.iter)
-plot.gbm(gbm.model, 3, best.iter)
-plot.gbm(gbm.model, 4, best.iter)
-plot.gbm(gbm.model, 5, best.iter)
-plot.gbm(gbm.model, 6, best.iter)
-plot.gbm(gbm.model, 7, best.iter)
-plot.gbm(gbm.model, 8, best.iter)
-plot.gbm(gbm.model, 9, best.iter)
-
-
-fitControl = trainControl(method="cv", number=5, returnResamp = "all")
-train[,ncol(train)] = as.factor(train[,ncol(train)])
-test[,ncol(train)] = as.factor(test[,ncol(train)])
-
-model2 = train(Y~., 
-               data = train, # test or train?
-               method = "gbm",
-               distribution = "bernoulli", 
-               trControl = fitControl, 
-               verbose = F, 
-               tuneGrid = data.frame(.n.trees=best.iter, 
-                                     .shrinkage=0.04, 
-                                     .interaction.depth=1, 
-                                     .n.minobsinnode=5))
-
-model2
-confusionMatrix(model2)
-getTrainPerf(model2)
-
-mPred = predict(model2, test, na.action = na.pass) # test or train?
-postResample(mPred, test$Y)
-confusionMatrix(mPred, test$Y)
-
-
-mResults = predict(model2, test, na.action = na.pass, type = "prob")
-mResults$obs = test$Y
-head(mResults)
-
-mnLogLoss(mResults, lev = levels(mResults$obs))
-
-mResults$pred = predict(model2, test, na.action = na.pass)
-multiClassSummary(mResults, lev = levels(mResults$obs))
-
-
-evalResults <- data.frame(Class = test$Y)
-evalResults$GBM <- predict(model2, test, na.action = na.pass, type = "prob")[,1]
-head(evalResults)
-
-trellis.par.set(caretTheme())
-liftData <- lift(Class ~ GBM, data = evalResults)
-plot(liftData, values = 60, auto.key = list(columns = 1,
-                                            lines = TRUE,
-                                            points = FALSE))
