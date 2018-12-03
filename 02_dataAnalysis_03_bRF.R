@@ -14,6 +14,7 @@ library(Ecdat)
 library(e1071)
 library(mlbench)
 library(MLmetrics)
+library(ROCR)
 # Hier fehlt eins hab aber vergessen wie es heisst
 
 rm(list = ls())
@@ -148,12 +149,39 @@ model = train(Y ~ .,
 
 
 # Plotting ROC curve -------------------
+# creating the optimal model
+DFopt = DFopt[,c(1,2,3,4,5,6,7,9,10)]
+DFopt[,ncol(DFopt)] = as.factor(DFopt[,ncol(DFopt)])
 
-prob_bRF_DFopt = as.matrix(predict(model,DFopt[,c(1,2,3,4,5,6,7,9,10)], type="prob"))
-varImpPlot(model, scale=F)
-ROC_Dfopt = roc(Y ~ prob_NN_DFopt[,2],auc = T)
-plot(prob_RF_DFopt)
+grid = expand.grid(.n.trees = 400,
+                   .interaction.depth = 5,
+                   .shrinkage = 0.03,
+                   .n.minobsinnode = 2.25
+)
 
+control = trainControl(method = "cv",
+                       number = 5)
+
+model = train(Y ~ .,
+                   data = DFopt,
+                   method = "gbm",
+                   tuneGrid = grid,
+                   trControl = control
+)
+
+
+RFb_probs <- predict(model, DFopt, type = "prob")
+
+pred_RFb <- prediction(RFb_probs[,1], DFopt$Y)
+perf_RFb <- performance(pred_RFb, "fpr", "tpr")
+plot(perf_RFb,xlim = c(0, 1), ylim = c(0, 1), type = "l", 
+     xlab = "false positive rate", ylab = "true positive rate", col = 'turquoise')
+abline(0, 1, col= "black")
+
+#AUC
+auc_RFb = performance(pred_RFb, "auc")
+auc_ROCR = 1-auc_RFb@y.values[[1]]
+#0.7326974
 
 # Kfold --------------------------------
 
@@ -205,8 +233,8 @@ model_accuracy_bRF = colMeans(kfold)
 # Since the boosted Random Forest yields the highet 10fold accuracy, we now use it for our final model,
 # training it with all of our data!
 
-DFmodel = DF[,c(1,2,3,4,5,6,7,9,10)]
-DFmodel[,ncol(DFmodel)] = as.factor(DFmodel[,ncol(DFmodel)])
+DFopt = DFopt[,c(1,2,3,4,5,6,7,9,10)]
+DFopt[,ncol(DFopt)] = as.factor(DFopt[,ncol(DFopt)])
 
 grid = expand.grid(.n.trees = 400,
                    .interaction.depth = 5,

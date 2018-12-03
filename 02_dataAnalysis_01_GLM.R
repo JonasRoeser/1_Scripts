@@ -118,17 +118,16 @@ best_comb = feature_test[which.max(feature_test[,3]),1]
 
 
 # Plotting ROC curve ------------------------------------------------------
+DFopt[,c(1:5,7:10)]
 
-best_comb
+Y = DFopt$Y
+model = glm(Y ~ ., data=DFopt, family=binomial(link='logit'))
+ROC_model = roc(DFopt$Y, model$fitted.values)
+plot(ROC_model,legacy.axes = TRUE, xlab = "false positive rate", ylab = "true positive rate", col = "blue")
 
-logistic(c(1,2,3,4,5,7,8,9,10))
-
-roc_train = roc(Ytrain ~ prob_log_train,
-                auc = T)
-plot(roc_train)
-roc_test = roc(Ytest ~ prob_log_test,
-               auc = T)
-plot(roc_test)
+#Area under the ROC
+auc(ROC_model)
+# = 0.7101
 
 
 # Kfold -------------------------------------------------------------------

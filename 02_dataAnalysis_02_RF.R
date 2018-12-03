@@ -98,7 +98,7 @@ best_comb = feature_test_oob[which.min(feature_test_oob[,2]),1]
 best_comb
 
 # Finding the necessary number of trees
-temp_model = randomForest(Y ~ ., data=DFopt[,c(1,2,3,4,5,6,7,9,10)], ntree=4000)
+temp_model = randomForest(Y ~ ., data=DFopt[,c(1:7,9,10)], ntree=4000)
 oob.error.data = data.frame(
   Trees=rep(1:nrow(temp_model$err.rate), times=3),
   Type=rep(c("OOB", "1", "0"), each=nrow(temp_model$err.rate)),
@@ -121,15 +121,16 @@ for(i in 1:10) {
 oob_values
 # We can see that mtry = 1 still has the lowest OOB error rate and is therefore optimal
 
-# Creating the optimal model
-model = randomForest(Y ~ ., data=DFopt[,c(1,2,3,4,5,6,7,9,10)], mtry=1, ntree=2000)
-
 # Plotting ROC curve -------------------
 
-prob_RF_DFopt = as.matrix(predict(model,DFopt[,c(1,2,3,4,5,6,7,9,10)], type="prob"))
-varImpPlot(model, scale=F)
-ROC_Dfopt = roc(DFopt[,ncol(DFopt)] ~ prob_RF_DFopt[,2],auc = T)
-plot(prob_RF_DFopt)
+# Creating the optimal model
+model = randomForest(Y ~ ., data=DFopt[,c(1:7,9,10)], mtry=1, ntree=2000)
+DFopt[,c(1:7,9,10)]
+ROC_model = roc(DFopt$Y,model$votes[,2])
+plot(ROC_model,legacy.axes = TRUE,xlab = "false positive rate", ylab = "true positive rate", col = "red")
+#Area under the ROC
+auc(ROC_model)
+# = 0.7085
 
 
 # Kfold --------------------------------

@@ -185,10 +185,18 @@ model = train(Y ~ .,
 
 # Plotting ROC curve -------------------
 
-prob_NN_DFopt = as.matrix(predict(model,DFopt[,c(1,2,3,4,5,6,7,8,10)], type="prob"))
-ROC_Dfopt = roc(Y ~ prob_NN_DFopt[,2],auc = T)
-plot(prob_RF_DFopt)
+NN_probs <- predict(model, DFopt, type = "prob")
 
+pred_NN <- prediction(NN_probs[,1], DFopt$Y)
+perf_NN <- performance(pred_NN, "fpr", "tpr")
+plot(perf_NN,xlim = c(0, 1), ylim = c(0, 1), type = "l", 
+     xlab = "false positive rate", ylab = "true positive rate", col = 'green')
+abline(0, 1, col= "black")
+
+#AUC
+auc_NN = performance(pred_NN, "auc")
+auc_ROCR = 1-auc_NN@y.values[[1]]
+#0.7157735
 
 # Kfold --------------------------------
 
