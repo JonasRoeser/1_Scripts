@@ -42,6 +42,7 @@ DFkfold[,ncol(DFkfold)] = as.factor(DFkfold[,ncol(DFkfold)])
 
 # The grid allows us to create several different models with various parameter settings.
 # Grid features
+
 grid = expand.grid(.n.trees = c(500,1000,2000),
                    .interaction.depth = 5,
                    .shrinkage = c(0.05,0.1),
